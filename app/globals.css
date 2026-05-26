@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset básico */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Fuente base del sistema (la plantilla usa fuentes propias inline) */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* --- Fuentes de la plantilla (vienen de next/font en layout.js) --- */
+:root {
+  --font-cinzel: ui-serif, Georgia, serif;
+  --font-pinyon: ui-serif, Georgia, serif;
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel);
+}
+
+.font-pinyon {
+  font-family: var(--font-pinyon);
+}
+}
