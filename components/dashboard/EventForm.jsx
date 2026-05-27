@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { Btn, Ico, Input, Label, Switch, Textarea } from "./primitives";
 import { isoToDateTimeLocal } from "@/lib/dashboard/utils";
+import { DEFAULT_TEMPLATE, listTemplates } from "@/lib/templates";
 
 const EMPTY = {
   title: "",
@@ -27,6 +28,7 @@ const EMPTY = {
   showKidsPolicy: true,
   showGifts: true,
   showBank: true,
+  template: DEFAULT_TEMPLATE,
 };
 
 export function eventToForm(ev) {
@@ -52,6 +54,7 @@ export function eventToForm(ev) {
     showKidsPolicy: ev.show_kids_policy !== false,
     showGifts: ev.show_gifts !== false,
     showBank: ev.show_bank !== false,
+    template: ev.template || DEFAULT_TEMPLATE,
   };
 }
 
@@ -74,10 +77,32 @@ export default function EventForm({
 
   const canSubmit = !!form.title.trim() && !!form.datetime && !busy;
   const isEdit = mode === "edit";
+  const templates = listTemplates();
 
   return (
     <div>
       <div className="grid gap-3 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <Label>Plantilla</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {templates.map((t) => (
+              <button
+                key={t.slug}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, template: t.slug }))}
+                className={`text-left rounded-xl border px-3.5 py-3 transition ${
+                  form.template === t.slug
+                    ? "border-rose-300 bg-rose-50/60 ring-2 ring-rose-100"
+                    : "border-stone-200 bg-white hover:border-stone-300"
+                }`}
+              >
+                <div className="text-sm font-bold text-stone-800">{t.name}</div>
+                <div className="text-[11px] text-stone-500 mt-0.5">{t.description}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="sm:col-span-2">
           <Label>Nombre *</Label>
           <Input value={form.title} onChange={set("title")} placeholder="Ej. Nuestra Boda" />

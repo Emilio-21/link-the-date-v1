@@ -4,8 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 
-// IMPORTA TU PLANTILLA
-import Plantilla from "@/app/templates/plantilla_v1/Plantilla";
+import { getTemplate } from "@/lib/templates";
 
 async function safeJson(res) {
   const text = await res.text();
@@ -112,6 +111,7 @@ export default function InviteByTokenPage() {
     );
   }
 
-  // ✅ Renderiza la plantilla real con RSVP precargado
+  // ✅ Renderiza la plantilla elegida en event.template (cae a la default si no)
+  const { component: Plantilla } = getTemplate(event?.template);
   return <Plantilla event={event} guest={guest} rsvp={rsvp} />;
 }

@@ -210,6 +210,7 @@ export function useDashboard() {
           gift_url_1: form.giftUrl1?.trim() || null,
           gift_url_2: form.giftUrl2?.trim() || null,
           bank_account: form.bankAccount?.trim() || null,
+          template: form.template || null,
         })
         .select(EVENT_COLUMNS)
         .single();
@@ -261,6 +262,7 @@ export function useDashboard() {
           show_kids_policy: form.showKidsPolicy,
           show_gifts: form.showGifts,
           show_bank: form.showBank,
+          template: form.template || null,
         })
         .eq("id", eventId)
         .select(EVENT_COLUMNS)
