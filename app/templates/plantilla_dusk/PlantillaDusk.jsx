@@ -155,11 +155,17 @@ export function PlantillaDusk({ event, guest, rsvp }) {
   const bankAccount    = event?.bank_account     || null;
   const bankName       = event?.bank_name        || null;
   const rsvpDeadline   = event?.rsvp_deadline_label || null;
+  const giftsMessage   = event?.gifts_message    || null;
+  const giftUrl1       = event?.gift_url_1        || null;
+  const giftUrl2       = event?.gift_url_2        || null;
+  const giftLabel1     = event?.gift_label_1      || "Mesa de regalos 1";
+  const giftLabel2     = event?.gift_label_2      || "Mesa de regalos 2";
 
   /* section toggles */
   const showDressCode  = event?.show_dress_code  !== false;
   const showKidsPolicy = event?.show_kids_policy !== false;
   const showBank       = event?.show_bank        !== false && !!bankAccount;
+  const showGifts      = event?.show_gifts        === true && (!!giftUrl1 || !!giftUrl2);
   const showCountdown  = event?.show_countdown   !== false;
 
   /* RSVP state — same shape as Plantilla.jsx */
@@ -333,6 +339,28 @@ export function PlantillaDusk({ event, guest, rsvp }) {
           </Body>
         </div>
 
+        {/* GALLERY — después del invitado, 1 arriba + 2 abajo */}
+        {gallery.length > 0 && (
+          <div style={{ marginTop: 40, padding: "0 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+            {/* foto grande arriba */}
+            <div style={{ position: "relative", aspectRatio: "16 / 10", borderRadius: 12, overflow: "hidden", border: `1px solid ${T.rule}` }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={gallery[0]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+            {/* dos fotos abajo */}
+            {gallery.length > 1 && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {gallery.slice(1, 3).map((src, i) => (
+                  <div key={i} style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 12, overflow: "hidden", border: `1px solid ${T.rule}` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* VENUE */}
         <div style={{ textAlign: "center", marginTop: 64, padding: "0 24px" }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
@@ -399,43 +427,46 @@ export function PlantillaDusk({ event, guest, rsvp }) {
           </div>
         )}
 
-        {/* BANK */}
-        {showBank && (
-          <div style={{ marginTop: 64, textAlign: "center" }}>
+        {/* GIFTS & BANK */}
+        {(giftsMessage || showGifts || showBank) && (
+          <div style={{ marginTop: 64, textAlign: "center", padding: "0 24px" }}>
             <div style={{ display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginBottom: 12 }}>
               <AutumnLeaf color={T.ember} size={14} rotate={-25} />
               <Caps size={10} tracking={5} color={T.ember}>With Love</Caps>
               <AutumnLeaf color={T.ember} size={14} rotate={25} />
             </div>
-            <BankBlock account={bankAccount} bankName={bankName} />
-          </div>
-        )}
 
-        {/* GALLERY */}
-        {gallery.length > 0 && (
-          <div style={{ marginTop: 64, padding: "0 20px" }}>
-            <div style={{ display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginBottom: 16 }}>
-              <AutumnLeaf color={T.ember} size={14} rotate={-25} />
-              <Caps size={10} tracking={5} color={T.ember}>Moments</Caps>
-              <AutumnLeaf color={T.ember} size={14} rotate={25} />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: gallery.length === 1 ? "1fr" : "1fr 1fr", gap: 8 }}>
-              {gallery.map((src, i) => (
-                <div
-                  key={i}
-                  style={{
-                    position: "relative",
-                    aspectRatio: gallery.length === 1 ? "16 / 10" : "1 / 1",
-                    borderRadius: 10,
-                    overflow: "hidden",
-                    border: `1px solid ${T.rule}`,
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                </div>
-              ))}
-            </div>
+            {giftsMessage && (
+              <Body size={13} color={T.inkSoft}
+                    style={{ maxWidth: 300, margin: "0 auto 18px", lineHeight: 1.55, whiteSpace: "pre-line", textWrap: "pretty" }}>
+                {giftsMessage}
+              </Body>
+            )}
+
+            {showGifts && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", marginBottom: showBank ? 20 : 0 }}>
+                {giftUrl1 && (
+                  <a href={giftUrl1} target="_blank" rel="noopener noreferrer" style={{
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    padding: "11px 26px", borderRadius: 999, textDecoration: "none",
+                    background: "transparent", border: `1px solid ${T.ember}`,
+                    fontFamily: CAPS, fontSize: 11, letterSpacing: 3, color: T.ember,
+                  }}>{giftLabel1}</a>
+                )}
+                {giftUrl2 && (
+                  <a href={giftUrl2} target="_blank" rel="noopener noreferrer" style={{
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    padding: "11px 26px", borderRadius: 999, textDecoration: "none",
+                    background: "transparent", border: `1px solid ${T.ember}`,
+                    fontFamily: CAPS, fontSize: 11, letterSpacing: 3, color: T.ember,
+                  }}>{giftLabel2}</a>
+                )}
+              </div>
+            )}
+
+            {showBank && (
+              <BankBlock account={bankAccount} bankName={bankName} hideCaption={!!giftsMessage} />
+            )}
           </div>
         )}
 
@@ -547,7 +578,7 @@ export function PlantillaDusk({ event, guest, rsvp }) {
 }
 
 /* Bank chip — separate so you can swap it for a project-wide component */
-function BankBlock({ account, bankName }) {
+function BankBlock({ account, bankName, hideCaption = false }) {
   const [copied, setCopied] = useState(false);
   const onCopy = async () => {
     try { await navigator.clipboard.writeText(String(account).replace(/\s/g, "")); } catch {}
@@ -555,9 +586,11 @@ function BankBlock({ account, bankName }) {
   };
   return (
     <div style={{ textAlign: "center", padding: "0 24px" }}>
-      <Body size={11} style={{ marginBottom: 14, lineHeight: 1.55 }}>
-        If you'd like to bless us with a gift,<br/>here's our account.
-      </Body>
+      {!hideCaption && (
+        <Body size={11} style={{ marginBottom: 14, lineHeight: 1.55 }}>
+          If you'd like to bless us with a gift,<br/>here's our account.
+        </Body>
+      )}
       <button onClick={onCopy} style={{
         display: "inline-flex", alignItems: "center", gap: 12,
         padding: "11px 22px", borderRadius: 999, cursor: "pointer",

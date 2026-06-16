@@ -58,7 +58,7 @@ export async function GET(req) {
         gift_url_1, gift_url_2, bank_account,
         couple_name, main_message,
         dress_code_text, kids_policy_text,
-        gift_label_1, gift_label_2,
+        gift_label_1, gift_label_2, gifts_message,
         bank_name,
         show_dress_code, show_kids_policy, show_gifts, show_bank,
         template,

@@ -257,6 +257,7 @@ export function useDashboard() {
           kids_policy_text: form.kidsPolicyText?.trim() || null,
           gift_label_1: form.giftLabel1?.trim() || null,
           gift_label_2: form.giftLabel2?.trim() || null,
+          gifts_message: form.giftsMessage?.trim() || null,
           bank_name: form.bankName?.trim() || null,
           show_dress_code: form.showDressCode,
           show_kids_policy: form.showKidsPolicy,

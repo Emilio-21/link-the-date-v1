@@ -148,3 +148,73 @@ export async function POST(req) {
     );
   }
 }
+
+// PATCH /api/guests
+// body: { id, name?, email?, phone?, max_guests? }
+export async function PATCH(req) {
+  try {
+    const body = await req.json().catch(() => null);
+    const id = body?.id;
+    if (!id) {
+      return NextResponse.json({ error: "Falta id" }, { status: 400 });
+    }
+
+    const updates = {};
+    if (body.name != null) updates.name = String(body.name).trim();
+    if ("email" in body) updates.email = (body.email || "").trim() || null;
+    if ("phone" in body) updates.phone = (body.phone || "").trim() || null;
+    if (body.max_guests != null) updates.max_guests = pickMaxGuests(body);
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: "Nada que actualizar" }, { status: 400 });
+    }
+
+    const supabase = supaAdmin();
+    const { data, error } = await supabase
+      .from("guests")
+      .update(updates)
+      .eq("id", id)
+      .select("id,event_id,name,email,phone,max_guests,token,created_at")
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ guest: data });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e?.message || "Server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/guests?id=...
+export async function DELETE(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "Falta id" }, { status: 400 });
+    }
+
+    const supabase = supaAdmin();
+
+    // Borra primero el RSVP asociado (si existe) para evitar FK constraint
+    await supabase.from("rsvps").delete().eq("guest_id", id);
+
+    const { error } = await supabase.from("guests").delete().eq("id", id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e?.message || "Server error" },
+      { status: 500 }
+    );
+  }
+}

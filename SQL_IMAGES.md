@@ -7,8 +7,9 @@ SQL una sola vez en **SQL Editor** de Supabase. Es seguro y backwards-compatible
 
 ```sql
 ALTER TABLE events
-  ADD COLUMN IF NOT EXISTS cover_url    TEXT,
-  ADD COLUMN IF NOT EXISTS gallery_urls TEXT[] NOT NULL DEFAULT '{}';
+  ADD COLUMN IF NOT EXISTS cover_url     TEXT,
+  ADD COLUMN IF NOT EXISTS gallery_urls  TEXT[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS gifts_message TEXT;
 ```
 
 ## 2. Bucket público en Storage

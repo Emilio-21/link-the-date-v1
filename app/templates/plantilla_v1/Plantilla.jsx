@@ -285,17 +285,23 @@ export function Plantilla({ event, guest, rsvp }) {
             <div className="text-center text-black text-[13px] tracking-[4.94px] font-cinzel mb-3">
               RECUERDOS
             </div>
-            <div className={`grid gap-2 ${gallery.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-              {gallery.map((src, i) => (
-                <div
-                  key={i}
-                  className="relative overflow-hidden rounded-xl"
-                  style={{ aspectRatio: gallery.length === 1 ? "16 / 10" : "1 / 1" }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="flex flex-col gap-2">
+              {/* foto grande arriba */}
+              <div className="relative overflow-hidden rounded-xl" style={{ aspectRatio: "16 / 10" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={gallery[0]} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              </div>
+              {/* dos fotos abajo */}
+              {gallery.length > 1 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {gallery.slice(1, 3).map((src, i) => (
+                    <div key={i} className="relative overflow-hidden rounded-xl" style={{ aspectRatio: "1 / 1" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

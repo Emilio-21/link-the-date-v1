@@ -8,7 +8,7 @@ import { isoToDateTimeLocal } from "@/lib/dashboard/utils";
 import { DEFAULT_TEMPLATE, listTemplates } from "@/lib/templates";
 import ImageUploader from "./ImageUploader";
 
-export const GALLERY_SIZE = 6;
+export const GALLERY_SIZE = 3;
 
 const EMPTY = {
   title: "",
@@ -26,6 +26,7 @@ const EMPTY = {
   kidsPolicyText: "Sin niños",
   giftLabel1: "Liverpool",
   giftLabel2: "Amazon",
+  giftsMessage: "",
   bankName: "",
   showDressCode: true,
   showKidsPolicy: true,
@@ -60,6 +61,7 @@ export function eventToForm(ev) {
     kidsPolicyText: ev.kids_policy_text ?? "Sin niños",
     giftLabel1: ev.gift_label_1 ?? "Liverpool",
     giftLabel2: ev.gift_label_2 ?? "Amazon",
+    giftsMessage: ev.gifts_message ?? "",
     bankName: ev.bank_name ?? "",
     showDressCode: ev.show_dress_code !== false,
     showKidsPolicy: ev.show_kids_policy !== false,
@@ -138,67 +140,12 @@ export default function EventForm({
           <Input value={form.locationUrl} onChange={set("locationUrl")} placeholder="https://maps.google.com/…" />
         </div>
 
-        <div className="sm:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-3 grid sm:grid-cols-2 gap-3">
-          <p className="sm:col-span-2 text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-1.5">
-            <Ico.Gift />
-            Mesas de regalos
-          </p>
-          <div>
-            <Label>Mesa #1</Label>
-            <Input value={form.giftUrl1} onChange={set("giftUrl1")} placeholder="Liverpool, Palacio…" />
-          </div>
-          <div>
-            <Label>Mesa #2</Label>
-            <Input value={form.giftUrl2} onChange={set("giftUrl2")} placeholder="Amazon, etc." />
-          </div>
+        <div className="sm:col-span-2">
+          <Label>Descripción corta</Label>
+          <Input value={form.description} onChange={set("description")} placeholder="Mensaje breve para invitados…" />
         </div>
 
-        <div>
-          <Label>Número de cuenta</Label>
-          <Input value={form.bankAccount} onChange={set("bankAccount")} placeholder="CLABE / tarjeta" />
-        </div>
-        <div>
-          <Label>Descripción</Label>
-          <Input value={form.description} onChange={set("description")} placeholder="Mensaje para invitados…" />
-        </div>
-
-        {isEdit && (
-          <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-white p-4 mt-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 mb-3">
-              Fotos del evento
-            </p>
-            <ImageUploader
-              label="Foto principal (hero)"
-              value={form.coverUrl}
-              onChange={(url) => setForm((f) => ({ ...f, coverUrl: url || "" }))}
-              eventId={eventId}
-              kind="cover"
-              aspect="video"
-            />
-            <Label>Galería (hasta {GALLERY_SIZE} fotos)</Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {form.galleryUrls.map((url, i) => (
-                <ImageUploader
-                  key={i}
-                  label={null}
-                  value={url}
-                  onChange={(newUrl) =>
-                    setForm((f) => {
-                      const next = [...f.galleryUrls];
-                      next[i] = newUrl || "";
-                      return { ...f, galleryUrls: next };
-                    })
-                  }
-                  eventId={eventId}
-                  kind="gallery"
-                  galleryIndex={i}
-                  aspect="square"
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
+        {/* ── PERSONALIZACIÓN (arriba) ───────────────────────────────── */}
         {isEdit && (
           <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-stone-50 p-4 mt-1">
             <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 mb-3">
@@ -218,6 +165,69 @@ export default function EventForm({
                   onChange={set("mainMessage")}
                   placeholder="Nos encantaría contar con tu presencia..."
                 />
+              </div>
+
+              {/* ── REGALOS Y BANCO (consolidado, fácil de acceder) ── */}
+              <div className="sm:col-span-2 rounded-xl border border-amber-200 bg-amber-50/50 p-3.5">
+                <div className="mb-3">
+                  <Switch
+                    checked={form.showGifts}
+                    onChange={toggle("showGifts")}
+                    label="Mostrar mesas de regalos / cuenta"
+                  />
+                </div>
+
+                {form.showGifts && (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="sm:col-span-2">
+                      <Label>Mensaje de regalos</Label>
+                      <Textarea
+                        rows={2}
+                        value={form.giftsMessage}
+                        onChange={set("giftsMessage")}
+                        placeholder="Si quieres bendecirnos, te dejamos nuestras mesas de regalos o una cuenta de banco."
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Título botón #1</Label>
+                      <Input value={form.giftLabel1} onChange={set("giftLabel1")} placeholder="Liverpool" />
+                    </div>
+                    <div>
+                      <Label>Link botón #1</Label>
+                      <Input value={form.giftUrl1} onChange={set("giftUrl1")} placeholder="https://…" />
+                    </div>
+
+                    <div>
+                      <Label>Título botón #2</Label>
+                      <Input value={form.giftLabel2} onChange={set("giftLabel2")} placeholder="Amazon" />
+                    </div>
+                    <div>
+                      <Label>Link botón #2</Label>
+                      <Input value={form.giftUrl2} onChange={set("giftUrl2")} placeholder="https://…" />
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-3 pt-3 border-t border-amber-200/70">
+                  <Switch
+                    checked={form.showBank}
+                    onChange={toggle("showBank")}
+                    label="Mostrar cuenta bancaria"
+                  />
+                </div>
+                {form.showBank && (
+                  <div className="grid sm:grid-cols-2 gap-3 mt-3">
+                    <div>
+                      <Label>Nombre del banco</Label>
+                      <Input value={form.bankName} onChange={set("bankName")} placeholder="BANAMEX, BBVA, SPEI…" />
+                    </div>
+                    <div>
+                      <Label>Número de cuenta / CLABE</Label>
+                      <Input value={form.bankAccount} onChange={set("bankAccount")} placeholder="CLABE / tarjeta" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="sm:col-span-2">
@@ -245,40 +255,44 @@ export default function EventForm({
                   <Input value={form.kidsPolicyText} onChange={set("kidsPolicyText")} placeholder="Sin niños" />
                 </div>
               )}
+            </div>
+          </div>
+        )}
 
-              <div className="sm:col-span-2">
-                <Switch
-                  checked={form.showGifts}
-                  onChange={toggle("showGifts")}
-                  label="Mostrar mesas de regalos"
+        {/* ── FOTOS (hasta abajo) ─────────────────────────────────────── */}
+        {isEdit && (
+          <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-white p-4 mt-1">
+            <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 mb-3">
+              Fotos del evento
+            </p>
+            <ImageUploader
+              label="Foto principal (hero)"
+              value={form.coverUrl}
+              onChange={(url) => setForm((f) => ({ ...f, coverUrl: url || "" }))}
+              eventId={eventId}
+              kind="cover"
+              aspect="video"
+            />
+            <Label>Galería ({GALLERY_SIZE} fotos — 1 arriba, 2 abajo)</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {form.galleryUrls.map((url, i) => (
+                <ImageUploader
+                  key={i}
+                  label={null}
+                  value={url}
+                  onChange={(newUrl) =>
+                    setForm((f) => {
+                      const next = [...f.galleryUrls];
+                      next[i] = newUrl || "";
+                      return { ...f, galleryUrls: next };
+                    })
+                  }
+                  eventId={eventId}
+                  kind="gallery"
+                  galleryIndex={i}
+                  aspect="square"
                 />
-              </div>
-              {form.showGifts && (
-                <>
-                  <div>
-                    <Label>Etiqueta Mesa #1</Label>
-                    <Input value={form.giftLabel1} onChange={set("giftLabel1")} placeholder="Liverpool" />
-                  </div>
-                  <div>
-                    <Label>Etiqueta Mesa #2</Label>
-                    <Input value={form.giftLabel2} onChange={set("giftLabel2")} placeholder="Amazon" />
-                  </div>
-                </>
-              )}
-
-              <div className="sm:col-span-2">
-                <Switch
-                  checked={form.showBank}
-                  onChange={toggle("showBank")}
-                  label="Mostrar cuenta bancaria"
-                />
-              </div>
-              {form.showBank && (
-                <div>
-                  <Label>Nombre del banco</Label>
-                  <Input value={form.bankName} onChange={set("bankName")} placeholder="BANAMEX, BBVA, SPEI…" />
-                </div>
-              )}
+              ))}
             </div>
           </div>
         )}
