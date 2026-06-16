@@ -125,6 +125,9 @@ export function PlantillaDusk({ event, guest, rsvp }) {
   const city       = event?.city        || event?.location || "";
   const mapUrl     = event?.map_url     || event?.location_url || null;
   const coverUrl   = event?.cover_url   || "/template/plantilla_dusk/hero.jpg";
+  const gallery    = Array.isArray(event?.gallery_urls)
+    ? event.gallery_urls.filter(Boolean)
+    : [];
 
   /* time extraction (mirrors Plantilla.jsx) */
   const rawTime = (() => {
@@ -405,6 +408,34 @@ export function PlantillaDusk({ event, guest, rsvp }) {
               <AutumnLeaf color={T.ember} size={14} rotate={25} />
             </div>
             <BankBlock account={bankAccount} bankName={bankName} />
+          </div>
+        )}
+
+        {/* GALLERY */}
+        {gallery.length > 0 && (
+          <div style={{ marginTop: 64, padding: "0 20px" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginBottom: 16 }}>
+              <AutumnLeaf color={T.ember} size={14} rotate={-25} />
+              <Caps size={10} tracking={5} color={T.ember}>Moments</Caps>
+              <AutumnLeaf color={T.ember} size={14} rotate={25} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: gallery.length === 1 ? "1fr" : "1fr 1fr", gap: 8 }}>
+              {gallery.map((src, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: "relative",
+                    aspectRatio: gallery.length === 1 ? "16 / 10" : "1 / 1",
+                    borderRadius: 10,
+                    overflow: "hidden",
+                    border: `1px solid ${T.rule}`,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

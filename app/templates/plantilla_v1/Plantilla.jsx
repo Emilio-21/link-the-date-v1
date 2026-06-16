@@ -93,6 +93,10 @@ export function Plantilla({ event, guest, rsvp }) {
 
   const maxGuests = Math.max(1, Number(guest?.max_guests || 1));
   const IMG = (name) => `/template/plantilla_v1/${name}`;
+  const coverUrl = event?.cover_url || IMG("anillo-de-compromiso-44-1.png");
+  const gallery = Array.isArray(event?.gallery_urls)
+    ? event.gallery_urls.filter(Boolean)
+    : [];
   const W = 440;
   const H = 1750;
   const BODY_SHIFT_Y = 80;
@@ -125,7 +129,7 @@ export function Plantilla({ event, guest, rsvp }) {
         <div className="absolute inset-0 w-[440px] h-[1700px] relative overflow-hidden bg-[#fff3e7]">
 
           {/* HERO */}
-          <img className="absolute top-0 left-0 w-[440px] h-[390px] object-cover" alt="Portada" src={IMG("anillo-de-compromiso-44-1.png")} />
+          <img className="absolute top-0 left-0 w-[440px] h-[390px] object-cover" alt="Portada" src={coverUrl} />
           <div className="absolute top-0 left-0 w-[440px] h-[248px] bg-[linear-gradient(180deg,rgba(0,0,0,0.58)_0%,rgba(0,0,0,0)_100%)]" />
 
           {/* Nombre de la pareja */}
@@ -273,9 +277,33 @@ export function Plantilla({ event, guest, rsvp }) {
           </div>
         </div>
       </div>
+
+      {/* GALERÍA — fuera de la tarjeta fija, en flujo responsivo */}
+      {gallery.length > 0 && (
+        <div className="w-full max-w-[440px] mx-auto px-3 pb-8 -mt-4">
+          <div className="rounded-2xl bg-[#fff3e7] p-4 shadow-lg">
+            <div className="text-center text-black text-[13px] tracking-[4.94px] font-cinzel mb-3">
+              RECUERDOS
+            </div>
+            <div className={`grid gap-2 ${gallery.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+              {gallery.map((src, i) => (
+                <div
+                  key={i}
+                  className="relative overflow-hidden rounded-xl"
+                  style={{ aspectRatio: gallery.length === 1 ? "16 / 10" : "1 / 1" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         @media (max-width: 440px) {
-          main > div { --scale: calc((100vw - 16px) / 440); }
+          main > div:first-child { --scale: calc((100vw - 16px) / 440); }
         }
       `}</style>
     </main>
