@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { Btn, Ico, Input, Label, Switch, Textarea } from "./primitives";
 import { isoToDateTimeLocal } from "@/lib/dashboard/utils";
 import { DEFAULT_TEMPLATE, listTemplates } from "@/lib/templates";
+import ImageUploader from "./ImageUploader";
+
+export const GALLERY_SIZE = 6;
 
 const EMPTY = {
   title: "",
@@ -29,7 +32,15 @@ const EMPTY = {
   showGifts: true,
   showBank: true,
   template: DEFAULT_TEMPLATE,
+  coverUrl: "",
+  galleryUrls: Array(GALLERY_SIZE).fill(""),
 };
+
+function padGallery(arr) {
+  const list = Array.isArray(arr) ? arr.slice(0, GALLERY_SIZE) : [];
+  while (list.length < GALLERY_SIZE) list.push("");
+  return list;
+}
 
 export function eventToForm(ev) {
   if (!ev) return { ...EMPTY };
@@ -55,12 +66,15 @@ export function eventToForm(ev) {
     showGifts: ev.show_gifts !== false,
     showBank: ev.show_bank !== false,
     template: ev.template || DEFAULT_TEMPLATE,
+    coverUrl: ev.cover_url ?? "",
+    galleryUrls: padGallery(ev.gallery_urls),
   };
 }
 
 export default function EventForm({
   mode = "create", // "create" | "edit"
   initial,
+  eventId,         // requerido para subir imágenes (solo modo edit)
   onSubmit,
   onCancel,
   busy,
@@ -147,6 +161,43 @@ export default function EventForm({
           <Label>Descripción</Label>
           <Input value={form.description} onChange={set("description")} placeholder="Mensaje para invitados…" />
         </div>
+
+        {isEdit && (
+          <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-white p-4 mt-1">
+            <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 mb-3">
+              Fotos del evento
+            </p>
+            <ImageUploader
+              label="Foto principal (hero)"
+              value={form.coverUrl}
+              onChange={(url) => setForm((f) => ({ ...f, coverUrl: url || "" }))}
+              eventId={eventId}
+              kind="cover"
+              aspect="video"
+            />
+            <Label>Galería (hasta {GALLERY_SIZE} fotos)</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {form.galleryUrls.map((url, i) => (
+                <ImageUploader
+                  key={i}
+                  label={null}
+                  value={url}
+                  onChange={(newUrl) =>
+                    setForm((f) => {
+                      const next = [...f.galleryUrls];
+                      next[i] = newUrl || "";
+                      return { ...f, galleryUrls: next };
+                    })
+                  }
+                  eventId={eventId}
+                  kind="gallery"
+                  galleryIndex={i}
+                  aspect="square"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {isEdit && (
           <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-stone-50 p-4 mt-1">

@@ -263,6 +263,10 @@ export function useDashboard() {
           show_gifts: form.showGifts,
           show_bank: form.showBank,
           template: form.template || null,
+          cover_url: form.coverUrl?.trim() || null,
+          gallery_urls: Array.isArray(form.galleryUrls)
+            ? form.galleryUrls.map((u) => (u || "").trim()).filter(Boolean)
+            : [],
         })
         .eq("id", eventId)
         .select(EVENT_COLUMNS)

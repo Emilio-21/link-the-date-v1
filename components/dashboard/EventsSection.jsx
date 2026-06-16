@@ -77,6 +77,7 @@ function EventCard({
           <EventForm
             mode="edit"
             initial={eventToForm(event)}
+            eventId={event.id}
             onSubmit={onSaveEdit}
             onCancel={onToggleEdit}
             busy={busyEdit}
