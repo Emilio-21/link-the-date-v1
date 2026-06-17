@@ -140,6 +140,16 @@ export function Plantilla({ event, guest, rsvp }) {
   const pinyonHead = "font-pinyon text-black text-[40px] leading-[0.95]";
   const cinzelCaps = "font-cinzel text-black text-[13px] tracking-[4.94px]";
   const peachBtn = "inline-flex items-center justify-center min-w-[120px] h-9 px-4 rounded-[21px] bg-[#f2ccaa] font-cinzel text-[10px] tracking-[3.4px] text-black text-center";
+  // desvanece las flores arriba y abajo para que no se vea el corte
+  const flowerMask = "linear-gradient(to bottom, transparent 0%, #000 16%, #000 80%, transparent 100%)";
+  const flowerStrip = (side, src) => ({
+    backgroundImage: `url(${IMG(src)})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "104px auto",
+    backgroundPosition: `top ${side}`,
+    WebkitMaskImage: flowerMask,
+    maskImage: flowerMask,
+  });
   const outlineBtn = "inline-flex items-center justify-center w-[128px] h-[45px] rounded-[31px] border border-black font-cinzel text-[10px] tracking-[3.2px] text-black text-center transition";
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -188,17 +198,10 @@ export function Plantilla({ event, guest, rsvp }) {
           <p className="font-cinzel text-black text-sm leading-relaxed mt-5 whitespace-pre-line">{mainMessage}</p>
         </section>
 
-        {/* ===== CUERPO ENMARCADO CON FLORES CONTINUAS (fecha → regalos) ===== */}
+        {/* ===== FECHA + LUGAR (racimo floral con fade) ===== */}
         <div className="relative">
-          {/* tiras florales continuas (repeat-y) por ambos lados, altura completa */}
-          <div
-            className="absolute inset-y-0 -left-3 w-[100px] z-0 opacity-95 pointer-events-none"
-            style={{ backgroundImage: `url(${IMG("flores-izquierda.svg")})`, backgroundRepeat: "repeat-y", backgroundSize: "100px auto", backgroundPosition: "top center" }}
-          />
-          <div
-            className="absolute inset-y-0 -right-3 w-[100px] z-0 opacity-95 pointer-events-none"
-            style={{ backgroundImage: `url(${IMG("flores-derecha.svg")})`, backgroundRepeat: "repeat-y", backgroundSize: "100px auto", backgroundPosition: "top center" }}
-          />
+          <div className="absolute inset-y-0 -left-3 w-[104px] z-0 pointer-events-none" style={flowerStrip("center", "flores-izquierda.svg")} />
+          <div className="absolute inset-y-0 -right-3 w-[104px] z-0 pointer-events-none" style={flowerStrip("center", "flores-derecha.svg")} />
 
           {/* FECHA + HORA */}
           <section className="relative z-10 px-6 pt-6 pb-4">
@@ -230,22 +233,27 @@ export function Plantilla({ event, guest, rsvp }) {
               </div>
             )}
           </section>
+        </div>
 
-          {/* DRESS CODE */}
-          {showDressCode && (
-            <section className="relative z-10 px-7 pt-7 pb-6 text-center">
-              <div className={pinyonHead}>Dress Code</div>
-              <div className={`${cinzelCaps} mt-3`}>{dressCodeText}</div>
-              <p className="font-cinzel text-black text-sm leading-relaxed mt-3">
-                ¡luce tu mejor look!<br />obviamente el color blanco está prohibido
-              </p>
-              {showKidsPolicy && <div className={`${cinzelCaps} mt-5`}>{kidsPolicyText}</div>}
-            </section>
-          )}
+        {/* ===== DRESS CODE (sin flores a los lados) ===== */}
+        {showDressCode && (
+          <section className="px-7 pt-10 pb-8 text-center">
+            <div className={pinyonHead}>Dress Code</div>
+            <div className={`${cinzelCaps} mt-3`}>{dressCodeText}</div>
+            <p className="font-cinzel text-black text-sm leading-relaxed mt-3">
+              ¡luce tu mejor look!<br />obviamente el color blanco está prohibido
+            </p>
+            {showKidsPolicy && <div className={`${cinzelCaps} mt-5`}>{kidsPolicyText}</div>}
+          </section>
+        )}
 
-          {/* REGALOS / BANCO */}
-          {(showGifts || showBank) && (
-            <section className="relative z-10 px-7 pt-6 pb-8 text-center">
+        {/* ===== REGALOS / BANCO (racimo floral con fade) ===== */}
+        {(showGifts || showBank) && (
+          <div className="relative">
+            <div className="absolute inset-y-0 -left-3 w-[104px] z-0 pointer-events-none" style={flowerStrip("center", "flores-izquierda.svg")} />
+            <div className="absolute inset-y-0 -right-3 w-[104px] z-0 pointer-events-none" style={flowerStrip("center", "flores-derecha.svg")} />
+
+            <section className="relative z-10 px-7 pt-8 pb-10 text-center">
               <div className={pinyonHead}>Regalos</div>
               <p className="font-cinzel text-black text-[13px] leading-relaxed mt-3 whitespace-pre-line">{giftsMessage}</p>
               <div className="flex flex-col items-center gap-3 mt-5">
@@ -267,8 +275,8 @@ export function Plantilla({ event, guest, rsvp }) {
                 </div>
               )}
             </section>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ===== GALERÍA ===== */}
         {gallery.length > 0 && (
