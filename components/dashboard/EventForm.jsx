@@ -5,10 +5,10 @@
 import { useEffect, useState } from "react";
 import { Btn, Ico, Input, Label, Switch, Textarea } from "./primitives";
 import { isoToDateTimeLocal } from "@/lib/dashboard/utils";
-import { DEFAULT_TEMPLATE, listTemplates } from "@/lib/templates";
+import { DEFAULT_TEMPLATE, getGallerySize, listTemplates } from "@/lib/templates";
 import ImageUploader from "./ImageUploader";
 
-export const GALLERY_SIZE = 3;
+export const GALLERY_SIZE = 6; // máximo soportado por cualquier plantilla
 
 const EMPTY = {
   title: "",
@@ -34,12 +34,12 @@ const EMPTY = {
   showBank: true,
   template: DEFAULT_TEMPLATE,
   coverUrl: "",
-  galleryUrls: Array(GALLERY_SIZE).fill(""),
+  galleryUrls: [],
 };
 
-function padGallery(arr) {
-  const list = Array.isArray(arr) ? arr.slice(0, GALLERY_SIZE) : [];
-  while (list.length < GALLERY_SIZE) list.push("");
+function padGallery(arr, size) {
+  const list = Array.isArray(arr) ? arr.slice(0, size) : [];
+  while (list.length < size) list.push("");
   return list;
 }
 
@@ -69,7 +69,7 @@ export function eventToForm(ev) {
     showBank: ev.show_bank !== false,
     template: ev.template || DEFAULT_TEMPLATE,
     coverUrl: ev.cover_url ?? "",
-    galleryUrls: padGallery(ev.gallery_urls),
+    galleryUrls: Array.isArray(ev.gallery_urls) ? ev.gallery_urls.filter(Boolean) : [],
   };
 }
 
@@ -94,6 +94,8 @@ export default function EventForm({
   const canSubmit = !!form.title.trim() && !!form.datetime && !busy;
   const isEdit = mode === "edit";
   const templates = listTemplates();
+  const gallerySize = getGallerySize(form.template);
+  const gallerySlots = padGallery(form.galleryUrls, gallerySize);
 
   return (
     <div>
@@ -273,16 +275,16 @@ export default function EventForm({
               kind="cover"
               aspect="video"
             />
-            <Label>Galería ({GALLERY_SIZE} fotos — 1 arriba, 2 abajo)</Label>
+            <Label>Galería (hasta {gallerySize} foto{gallerySize !== 1 ? "s" : ""})</Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {form.galleryUrls.map((url, i) => (
+              {gallerySlots.map((url, i) => (
                 <ImageUploader
                   key={i}
                   label={null}
                   value={url}
                   onChange={(newUrl) =>
                     setForm((f) => {
-                      const next = [...f.galleryUrls];
+                      const next = padGallery(f.galleryUrls, gallerySize);
                       next[i] = newUrl || "";
                       return { ...f, galleryUrls: next };
                     })
