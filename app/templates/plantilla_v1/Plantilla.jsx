@@ -180,7 +180,7 @@ export function Plantilla({ event, guest, rsvp }) {
           <div className={pinyonHead}>{guestName}</div>
           <div className={`${cinzelCaps} mt-3`}>¡ESTÁN INVITADOS!</div>
 
-          <div className="flex flex-wrap justify-center gap-2 mt-4">
+          <div className="flex flex-col items-center gap-3 mt-4">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-black/30">
               <span className="w-1.5 h-1.5 bg-black/60 rotate-45" />
               <span className="font-cinzel text-[9.5px] tracking-[3px] text-black/70">
@@ -188,9 +188,9 @@ export function Plantilla({ event, guest, rsvp }) {
               </span>
             </span>
             {tableLabel && (
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f2ccaa]">
-                <span className="w-1.5 h-1.5 bg-black/60 rotate-45" />
-                <span className="font-cinzel text-[9.5px] tracking-[3px] text-black">MESA {tableLabel}</span>
+              <span className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[#d99f5c] border border-[#a9762f] shadow-sm">
+                <span className="w-2.5 h-2.5 bg-black/70 rotate-45" />
+                <span className="font-cinzel text-[19px] tracking-[4px] text-black font-bold">MESA {tableLabel}</span>
               </span>
             )}
           </div>
