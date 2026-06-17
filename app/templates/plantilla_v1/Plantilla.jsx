@@ -140,6 +140,8 @@ export function Plantilla({ event, guest, rsvp }) {
   const pinyonHead = "font-pinyon text-black text-[40px] leading-[0.95]";
   const cinzelCaps = "font-cinzel text-black text-[13px] tracking-[4.94px]";
   const peachBtn = "inline-flex items-center justify-center min-w-[120px] h-9 px-4 rounded-[21px] bg-[#f2ccaa] font-cinzel text-[10px] tracking-[3.4px] text-black text-center";
+  // botón de regalos con más contraste (dorado sólido + borde)
+  const giftBtn = "inline-flex items-center justify-center min-w-[170px] h-12 px-7 rounded-[26px] bg-[#d99f5c] border border-[#a9762f] font-cinzel text-[13px] tracking-[3.6px] text-black font-bold shadow-sm hover:bg-[#cf9149] transition";
   // desvanece las flores arriba y abajo para que no se vea el corte
   const flowerMask = "linear-gradient(to bottom, transparent 0%, #000 16%, #000 80%, transparent 100%)";
   const flowerStrip = (side, src) => ({
@@ -253,27 +255,32 @@ export function Plantilla({ event, guest, rsvp }) {
             <div className="absolute inset-y-0 -left-3 w-[104px] z-0 pointer-events-none" style={flowerStrip("center", "flores-izquierda.svg")} />
             <div className="absolute inset-y-0 -right-3 w-[104px] z-0 pointer-events-none" style={flowerStrip("center", "flores-derecha.svg")} />
 
-            <section className="relative z-10 px-7 pt-8 pb-10 text-center">
-              <div className={pinyonHead}>Regalos</div>
-              <p className="font-cinzel text-black text-[13px] leading-relaxed mt-3 whitespace-pre-line">{giftsMessage}</p>
-              <div className="flex flex-col items-center gap-3 mt-5">
-                {showGifts && gift1 && <a href={gift1} target="_blank" rel="noopener noreferrer" className={peachBtn}>{giftLabel1}</a>}
-                {showGifts && gift2 && <a href={gift2} target="_blank" rel="noopener noreferrer" className={peachBtn}>{giftLabel2}</a>}
-              </div>
-              {showBank && (
-                <div className="mt-7">
-                  <p className="font-cinzel text-black text-[11px] leading-relaxed">
-                    DE IGUAL MANERA SI NOS QUIERES BENDECIR<br />CON DINERO, TE DEJAMOS UNA CUENTA
-                  </p>
-                  <div className="mt-3 inline-flex items-center gap-3 px-5 h-9 rounded-[21px] bg-[#f2ccaa]">
-                    <span className="font-cinzel text-black text-[10px] tracking-[3px] tabular-nums">{bankAccount}</span>
-                    <button onClick={copyBank} className="font-cinzel text-black text-[9px] tracking-[2px] underline">
-                      {copied ? "✓" : "COPIAR"}
-                    </button>
-                  </div>
-                  {bankName && <div className="font-cinzel text-black text-[8px] tracking-[2.66px] mt-2">{bankName.toUpperCase()}</div>}
+            <section className="relative z-10 px-5 pt-8 pb-10 text-center">
+              <div className="mx-auto max-w-[300px] rounded-3xl bg-[#fbf1e2]/85 border border-[#d99f5c]/50 shadow-sm backdrop-blur-[1px] px-6 py-7">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d99f5c] mb-2">
+                  <span className="font-cinzel text-[9px] tracking-[3px] text-black font-bold">MESA DE REGALOS</span>
                 </div>
-              )}
+                <div className={pinyonHead}>Regalos</div>
+                <p className="font-cinzel text-black text-[12.5px] leading-relaxed mt-3 whitespace-pre-line">{giftsMessage}</p>
+                <div className="flex flex-col items-center gap-3 mt-5">
+                  {showGifts && gift1 && <a href={gift1} target="_blank" rel="noopener noreferrer" className={giftBtn}>{giftLabel1}</a>}
+                  {showGifts && gift2 && <a href={gift2} target="_blank" rel="noopener noreferrer" className={giftBtn}>{giftLabel2}</a>}
+                </div>
+                {showBank && (
+                  <div className="mt-7 pt-6 border-t border-[#d99f5c]/40">
+                    <p className="font-cinzel text-black text-[11px] leading-relaxed">
+                      DE IGUAL MANERA SI NOS QUIERES BENDECIR<br />CON DINERO, TE DEJAMOS UNA CUENTA
+                    </p>
+                    <div className="mt-3 inline-flex items-center gap-3 px-5 h-11 rounded-[24px] bg-[#d99f5c] border border-[#a9762f]">
+                      <span className="font-cinzel text-black text-[11px] tracking-[2px] tabular-nums font-bold">{bankAccount}</span>
+                      <button onClick={copyBank} className="font-cinzel text-black text-[9px] tracking-[2px] underline font-semibold">
+                        {copied ? "✓" : "COPIAR"}
+                      </button>
+                    </div>
+                    {bankName && <div className="font-cinzel text-black text-[9px] tracking-[2.66px] mt-2 font-semibold">{bankName.toUpperCase()}</div>}
+                  </div>
+                )}
+              </div>
             </section>
           </div>
         )}
