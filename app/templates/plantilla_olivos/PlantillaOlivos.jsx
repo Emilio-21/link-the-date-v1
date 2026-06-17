@@ -131,6 +131,11 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const venueName = event?.venue_name || "";
   const cityLine = event?.location || "";
   const mapUrl = event?.location_url || null;
+  // Query para el mapa embebido (no requiere API key). Prefiere venue + ciudad.
+  const mapQuery = [venueName, cityLine].filter(Boolean).join(", ");
+  const mapEmbedUrl = mapQuery
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
+    : null;
 
   const guestName = (guest?.name || "").trim() || "Invitado especial";
   const maxGuests = Math.max(1, Number(guest?.max_guests) || 1);
@@ -301,14 +306,24 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
               La ceremonia y la fiesta serán en el mismo lugar. Aquí abajo les compartimos la ubicación.
             </p>
             <div style={{ background: T.paper2, borderRadius: 3, overflow: "hidden", boxShadow: "0 14px 32px rgba(74,74,66,.12)" }}>
-              <div style={{ position: "relative", height: 150, overflow: "hidden", background: "linear-gradient(135deg,#8b9fae,#a7b1a0)" }}>
-                <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 11px,rgba(0,0,0,.04) 11px 22px)" }} />
-                <div style={{ position: "absolute", top: 46, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div style={{ width: 30, height: 30, borderRadius: "50% 50% 50% 0", background: T.gold, transform: "rotate(-45deg)", boxShadow: "0 6px 12px rgba(120,93,52,.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ width: 10, height: 10, background: T.paper2, borderRadius: "50%", transform: "rotate(45deg)" }} />
+              {mapEmbedUrl ? (
+                <iframe
+                  title="Mapa de la ubicación"
+                  src={mapEmbedUrl}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  style={{ display: "block", width: "100%", height: 200, border: 0, filter: "saturate(.88) contrast(1.02)" }}
+                />
+              ) : (
+                <div style={{ position: "relative", height: 150, overflow: "hidden", background: "linear-gradient(135deg,#8b9fae,#a7b1a0)" }}>
+                  <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 11px,rgba(0,0,0,.04) 11px 22px)" }} />
+                  <div style={{ position: "absolute", top: 46, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div style={{ width: 30, height: 30, borderRadius: "50% 50% 50% 0", background: T.gold, transform: "rotate(-45deg)", boxShadow: "0 6px 12px rgba(120,93,52,.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ width: 10, height: 10, background: T.paper2, borderRadius: "50%", transform: "rotate(45deg)" }} />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               <div style={{ padding: "24px 24px 26px", textAlign: "center" }}>
                 <div style={{ fontFamily: SCRIPT, fontSize: 42, color: T.navy, lineHeight: 1, paddingBottom: 3 }}>{venueName || "Nuestro lugar"}</div>
                 {cityLine && <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.12em", color: T.soft, margin: "8px 0 18px", lineHeight: 1.6 }}>{cityLine}</div>}
