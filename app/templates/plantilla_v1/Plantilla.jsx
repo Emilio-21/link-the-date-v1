@@ -190,9 +190,9 @@ export function Plantilla({ event, guest, rsvp }) {
               </span>
             </span>
             {tableLabel && (
-              <span className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[#d99f5c] border border-[#a9762f] shadow-sm">
-                <span className="w-2.5 h-2.5 bg-black/70 rotate-45" />
-                <span className="font-cinzel text-[19px] tracking-[4px] text-black font-bold">MESA {tableLabel}</span>
+              <span className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full bg-[#d99f5c] border border-[#a9762f] shadow-sm">
+                <span className="w-2 h-2 bg-black/70 rotate-45" />
+                <span className="font-cinzel text-[17px] tracking-[3.5px] text-black font-bold">MESA {tableLabel}</span>
               </span>
             )}
           </div>
