@@ -21,6 +21,7 @@
    ──────────────────────────────────────────────────────────────────────── */
 
 import { useEffect, useState } from "react";
+import { fmtDeadline } from "@/lib/dashboard/utils";
 
 /* ── Theme tokens — warm autumn palette ─────────────────────────────── */
 const T = {
@@ -154,7 +155,9 @@ export function PlantillaDusk({ event, guest, rsvp }) {
   const kidsPolicyText = event?.kids_policy_text || "Adults only celebration";
   const bankAccount    = event?.bank_account     || null;
   const bankName       = event?.bank_name        || null;
-  const rsvpDeadline   = event?.rsvp_deadline_label || null;
+  const rsvpDeadline   = event?.rsvp_deadline
+    ? `Confirmar antes del ${fmtDeadline(event.rsvp_deadline)}`
+    : (event?.rsvp_deadline_label || null);
   const giftsMessage   = event?.gifts_message    || null;
   const giftUrl1       = event?.gift_url_1        || null;
   const giftUrl2       = event?.gift_url_2        || null;

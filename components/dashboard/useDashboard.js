@@ -263,6 +263,7 @@ export function useDashboard() {
           show_kids_policy: form.showKidsPolicy,
           show_gifts: form.showGifts,
           show_bank: form.showBank,
+          rsvp_deadline: form.rsvpDeadline || null,
           template: form.template || null,
           cover_url: form.coverUrl?.trim() || null,
           gallery_urls: Array.isArray(form.galleryUrls)

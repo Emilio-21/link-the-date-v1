@@ -62,7 +62,7 @@ export async function GET(req) {
         bank_name,
         show_dress_code, show_kids_policy, show_gifts, show_bank,
         template,
-        cover_url, gallery_urls
+        cover_url, gallery_urls, rsvp_deadline
       `)
       .eq("id", guest.event_id)
       .maybeSingle();

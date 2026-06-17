@@ -32,6 +32,7 @@ const EMPTY = {
   showKidsPolicy: true,
   showGifts: true,
   showBank: true,
+  rsvpDeadline: "",
   template: DEFAULT_TEMPLATE,
   coverUrl: "",
   galleryUrls: [],
@@ -67,6 +68,7 @@ export function eventToForm(ev) {
     showKidsPolicy: ev.show_kids_policy !== false,
     showGifts: ev.show_gifts !== false,
     showBank: ev.show_bank !== false,
+    rsvpDeadline: ev.rsvp_deadline ?? "",
     template: ev.template || DEFAULT_TEMPLATE,
     coverUrl: ev.cover_url ?? "",
     galleryUrls: Array.isArray(ev.gallery_urls) ? ev.gallery_urls.filter(Boolean) : [],
@@ -167,6 +169,11 @@ export default function EventForm({
                   onChange={set("mainMessage")}
                   placeholder="Nos encantaría contar con tu presencia..."
                 />
+              </div>
+
+              <div>
+                <Label>Fecha límite para confirmar (RSVP)</Label>
+                <Input type="date" value={form.rsvpDeadline} onChange={set("rsvpDeadline")} />
               </div>
 
               {/* ── REGALOS Y BANCO (consolidado, fácil de acceder) ── */}

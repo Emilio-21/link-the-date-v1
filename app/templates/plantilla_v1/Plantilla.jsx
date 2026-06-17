@@ -7,6 +7,7 @@ import { ButtonMesaDeWrapper } from "./ButtonMesaDeWrapper";
 import { ButtonNoAsistir } from "./ButtonNoAsistir";
 import { ButtonSiAsistir } from "./ButtonSiAsistir";
 import Countdown from "./countdown";
+import { fmtDeadline } from "@/lib/dashboard/utils";
 
 function monthES(dateStr) {
   try {
@@ -97,6 +98,7 @@ export function Plantilla({ event, guest, rsvp }) {
   const gallery = Array.isArray(event?.gallery_urls)
     ? event.gallery_urls.filter(Boolean)
     : [];
+  const rsvpDeadline = fmtDeadline(event?.rsvp_deadline);
   const W = 440;
   const H = 1750;
   const BODY_SHIFT_Y = 80;
@@ -235,6 +237,11 @@ export function Plantilla({ event, guest, rsvp }) {
 
             {/* RSVP */}
             <div className="absolute top-[1434px] left-0 w-[440px] text-center text-black text-[40px] leading-[36.2px] font-pinyon">Confirma tu asistencia</div>
+            {rsvpDeadline && (
+              <div className="absolute top-[1460px] left-0 w-[440px] text-center text-black text-[11px] tracking-[3px] font-cinzel">
+                Confirma antes del {rsvpDeadline}
+              </div>
+            )}
             <div className="absolute top-[1485px] left-0 w-[440px] text-center text-black text-[13px] tracking-[4.94px] font-cinzel">
               Cuentas con {maxGuests} entradas
             </div>

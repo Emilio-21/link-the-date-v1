@@ -9,6 +9,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { fmtDeadline } from "@/lib/dashboard/utils";
 
 const ASSET = (n) => `/template/plantilla_olivos/${n}`;
 
@@ -160,6 +161,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const showGifts = event?.show_gifts !== false && (!!giftUrl1 || !!giftUrl2);
   const showBank = event?.show_bank !== false && !!bankAccount;
 
+  const rsvpDeadline = fmtDeadline(event?.rsvp_deadline);
   const coverUrl = event?.cover_url || ASSET("portada.jpeg");
   const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean).slice(0, 6) : [];
 
@@ -343,7 +345,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
           <section style={{ position: "relative", overflow: "hidden", padding: "56px 30px 58px", background: "linear-gradient(180deg,rgba(111,138,163,.06),rgba(111,138,163,.12))", borderTop: "1px solid rgba(78,102,121,.12)", borderBottom: "1px solid rgba(78,102,121,.12)" }}>
             <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", top: -30, right: -46, width: 140, opacity: 0.45, transform: "rotate(20deg)", pointerEvents: "none", zIndex: 0 }} />
             <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-              <SectionTitle script="Qué" caps="me pongo" />
+              <SectionTitle script="¿Qué" caps="me pongo?" />
               <div style={{ fontFamily: SERIF, fontWeight: 800, fontSize: 34, letterSpacing: "0.04em", textTransform: "uppercase", color: T.blue, lineHeight: 1.05 }}>{dressCodeText}</div>
               <p style={{ fontFamily: MONO, fontSize: 12.5, color: T.soft, lineHeight: 1.85, margin: "16px auto 30px", maxWidth: 300, textWrap: "pretty" }}>
                 Inspírate en nuestra paleta de tonos suaves. Reservamos el blanco para la novia.
@@ -377,7 +379,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.navy} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8 H19 L18 20 H6 Z" /><path d="M8.5 8 V6.5 A3.5 3.5 0 0 1 15.5 6.5 V8" /></svg>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: SCRIPT, fontSize: 30, color: T.navy, lineHeight: 1 }}>{giftLabel1}</div>
+                      <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{giftLabel1}</div>
                     </div>
                     <a href={giftUrl1} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", fontFamily: SERIF, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, whiteSpace: "nowrap" }}>Ver lista →</a>
                   </div>
@@ -388,7 +390,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.goldDark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9 L12 4 L20 9" /><path d="M5 9 V19 H19 V9" /><line x1="3" y1="19" x2="21" y2="19" /></svg>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: SCRIPT, fontSize: 30, color: T.navy, lineHeight: 1 }}>{giftLabel2 || "Mesa de regalos 2"}</div>
+                      <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{giftLabel2 || "Mesa de regalos 2"}</div>
                     </div>
                     <a href={giftUrl2} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", fontFamily: SERIF, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, whiteSpace: "nowrap" }}>Ver lista →</a>
                   </div>
@@ -399,7 +401,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.goldDark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9 L12 4 L20 9" /><path d="M5 9 V19 H19 V9" /><line x1="3" y1="19" x2="21" y2="19" /><line x1="12" y1="12" x2="12" y2="16" /></svg>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: SCRIPT, fontSize: 30, color: T.navy, lineHeight: 1 }}>{bankName || "Transferencia"}</div>
+                      <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{bankName || "Transferencia"}</div>
                       <div style={{ fontFamily: MONO, fontSize: 10, color: T.soft, marginTop: 4, letterSpacing: "0.04em" }}>{bankAccount}</div>
                     </div>
                     <span onClick={copyBank} style={{ fontFamily: SERIF, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{copied ? "✓ Copiado" : "Copiar"}</span>
@@ -447,7 +449,9 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                 {!confirmed ? (
                   <>
                     <div style={{ textAlign: "center", fontFamily: MONO, fontSize: 12.5, color: T.soft, lineHeight: 1.75, marginBottom: 24 }}>
-                      Confírmanos tu asistencia, por favor.
+                      {rsvpDeadline
+                        ? <>Confírmanos tu asistencia antes del <strong style={{ color: T.navy }}>{rsvpDeadline}</strong></>
+                        : "Confírmanos tu asistencia, por favor."}
                     </div>
                     <div style={{ fontFamily: SERIF, fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: T.soft, fontWeight: 600, marginBottom: 11, textAlign: "center" }}>¿Asistirás?</div>
                     <div style={{ display: "flex", gap: 12, marginBottom: yes ? 18 : 26 }}>
