@@ -188,75 +188,85 @@ export function Plantilla({ event, guest, rsvp }) {
           <p className="font-cinzel text-black text-sm leading-relaxed mt-5 whitespace-pre-line">{mainMessage}</p>
         </section>
 
-        {/* ===== FECHA + HORA (con flores) ===== */}
-        <section className="relative px-6 py-6">
-          <img src={IMG("flores-izquierda.svg")} alt="" className="absolute -left-1 top-0 w-14 h-auto opacity-90 pointer-events-none" />
-          <img src={IMG("flores-derecha.svg")} alt="" className="absolute -right-1 top-0 w-14 h-auto opacity-90 pointer-events-none" />
-          <div className="flex items-center justify-center gap-6">
-            <div className="text-center">
-              <div className="font-pinyon text-black text-5xl leading-none">{cap(monthES(eventDate)) || "Mes"}</div>
-              <div className="font-cinzel text-black text-4xl mt-1">{dayNum(eventDate) || "--"}</div>
-              <div className="font-cinzel text-black text-base tracking-[8px] mt-1">{yearNum(eventDate)}</div>
-            </div>
-            {(time || ampm) && (
-              <>
-                <span className="w-px h-28 bg-black/40" />
-                <div className="text-center">
-                  <div className="font-pinyon text-black text-5xl leading-none">{time}</div>
-                  <div className="font-cinzel text-black text-2xl mt-1">{ampm}</div>
-                </div>
-              </>
-            )}
-          </div>
-        </section>
+        {/* ===== FECHA + LUGAR (enmarcado con flores grandes) ===== */}
+        <div className="relative">
+          {/* racimo floral superior — baja por ambos lados */}
+          <img src={IMG("flores-izquierda.svg")} alt="" className="absolute top-0 -left-3 w-[92px] h-auto opacity-95 pointer-events-none select-none z-0" />
+          <img src={IMG("flores-derecha.svg")} alt="" className="absolute top-0 -right-3 w-[92px] h-auto opacity-95 pointer-events-none select-none z-0" />
 
-        {/* ===== LUGAR ===== */}
-        <section className="px-7 py-7 text-center">
-          {venueName && <div className={pinyonHead}>{venueName}</div>}
-          {city && <div className={`${cinzelCaps} mt-2`}>{city}</div>}
-          {mapUrl && (
-            <div className="mt-4">
-              <a href={mapUrl} target="_blank" rel="noopener noreferrer" className={peachBtn}>Ubicación</a>
+          <section className="relative z-10 px-6 pt-6 pb-4">
+            <div className="flex items-center justify-center gap-6">
+              <div className="text-center">
+                <div className="font-pinyon text-black text-5xl leading-none">{cap(monthES(eventDate)) || "Mes"}</div>
+                <div className="font-cinzel text-black text-4xl mt-1">{dayNum(eventDate) || "--"}</div>
+                <div className="font-cinzel text-black text-base tracking-[8px] mt-1">{yearNum(eventDate)}</div>
+              </div>
+              {(time || ampm) && (
+                <>
+                  <span className="w-px h-28 bg-black/40" />
+                  <div className="text-center">
+                    <div className="font-pinyon text-black text-5xl leading-none">{time}</div>
+                    <div className="font-cinzel text-black text-2xl mt-1">{ampm}</div>
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </section>
-
-        {/* ===== DRESS CODE ===== */}
-        {showDressCode && (
-          <section className="px-7 py-7 text-center">
-            <div className={pinyonHead}>Dress Code</div>
-            <div className={`${cinzelCaps} mt-3`}>{dressCodeText}</div>
-            <p className="font-cinzel text-black text-sm leading-relaxed mt-3">
-              ¡luce tu mejor look!<br />obviamente el color blanco está prohibido
-            </p>
-            {showKidsPolicy && <div className={`${cinzelCaps} mt-5`}>{kidsPolicyText}</div>}
           </section>
-        )}
 
-        {/* ===== REGALOS / BANCO ===== */}
-        {(showGifts || showBank) && (
-          <section className="px-7 py-7 text-center">
-            <div className={pinyonHead}>Regalos</div>
-            <p className="font-cinzel text-black text-[13px] leading-relaxed mt-3 whitespace-pre-line">{giftsMessage}</p>
-            <div className="flex flex-col items-center gap-3 mt-5">
-              {showGifts && gift1 && <a href={gift1} target="_blank" rel="noopener noreferrer" className={peachBtn}>{giftLabel1}</a>}
-              {showGifts && gift2 && <a href={gift2} target="_blank" rel="noopener noreferrer" className={peachBtn}>{giftLabel2}</a>}
-            </div>
-            {showBank && (
-              <div className="mt-7">
-                <p className="font-cinzel text-black text-[11px] leading-relaxed">
-                  DE IGUAL MANERA SI NOS QUIERES BENDECIR<br />CON DINERO, TE DEJAMOS UNA CUENTA
-                </p>
-                <div className="mt-3 inline-flex items-center gap-3 px-5 h-9 rounded-[21px] bg-[#f2ccaa]">
-                  <span className="font-cinzel text-black text-[10px] tracking-[3px] tabular-nums">{bankAccount}</span>
-                  <button onClick={copyBank} className="font-cinzel text-black text-[9px] tracking-[2px] underline">
-                    {copied ? "✓" : "COPIAR"}
-                  </button>
-                </div>
-                {bankName && <div className="font-cinzel text-black text-[8px] tracking-[2.66px] mt-2">{bankName.toUpperCase()}</div>}
+          <section className="relative z-10 px-7 pt-4 pb-8 text-center">
+            {venueName && <div className={pinyonHead}>{venueName}</div>}
+            {city && <div className={`${cinzelCaps} mt-2`}>{city}</div>}
+            {mapUrl && (
+              <div className="mt-4">
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer" className={peachBtn}>Ubicación</a>
               </div>
             )}
           </section>
+        </div>
+
+        {/* ===== DRESS CODE + REGALOS (enmarcado con flores grandes) ===== */}
+        {(showDressCode || showGifts || showBank) && (
+          <div className="relative">
+            {/* racimo floral inferior — baja por ambos lados */}
+            <img src={IMG("flores-izquierda.svg")} alt="" className="absolute top-2 -left-4 w-[108px] h-auto opacity-95 pointer-events-none select-none z-0" />
+            <img src={IMG("flores-derecha.svg")} alt="" className="absolute top-2 -right-4 w-[108px] h-auto opacity-95 pointer-events-none select-none z-0" />
+
+            {showDressCode && (
+              <section className="relative z-10 px-7 pt-7 pb-6 text-center">
+                <div className={pinyonHead}>Dress Code</div>
+                <div className={`${cinzelCaps} mt-3`}>{dressCodeText}</div>
+                <p className="font-cinzel text-black text-sm leading-relaxed mt-3">
+                  ¡luce tu mejor look!<br />obviamente el color blanco está prohibido
+                </p>
+                {showKidsPolicy && <div className={`${cinzelCaps} mt-5`}>{kidsPolicyText}</div>}
+              </section>
+            )}
+
+            {(showGifts || showBank) && (
+              <section className="relative z-10 px-7 pt-6 pb-8 text-center">
+                <div className={pinyonHead}>Regalos</div>
+                <p className="font-cinzel text-black text-[13px] leading-relaxed mt-3 whitespace-pre-line">{giftsMessage}</p>
+                <div className="flex flex-col items-center gap-3 mt-5">
+                  {showGifts && gift1 && <a href={gift1} target="_blank" rel="noopener noreferrer" className={peachBtn}>{giftLabel1}</a>}
+                  {showGifts && gift2 && <a href={gift2} target="_blank" rel="noopener noreferrer" className={peachBtn}>{giftLabel2}</a>}
+                </div>
+                {showBank && (
+                  <div className="mt-7">
+                    <p className="font-cinzel text-black text-[11px] leading-relaxed">
+                      DE IGUAL MANERA SI NOS QUIERES BENDECIR<br />CON DINERO, TE DEJAMOS UNA CUENTA
+                    </p>
+                    <div className="mt-3 inline-flex items-center gap-3 px-5 h-9 rounded-[21px] bg-[#f2ccaa]">
+                      <span className="font-cinzel text-black text-[10px] tracking-[3px] tabular-nums">{bankAccount}</span>
+                      <button onClick={copyBank} className="font-cinzel text-black text-[9px] tracking-[2px] underline">
+                        {copied ? "✓" : "COPIAR"}
+                      </button>
+                    </div>
+                    {bankName && <div className="font-cinzel text-black text-[8px] tracking-[2.66px] mt-2">{bankName.toUpperCase()}</div>}
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
         )}
 
         {/* ===== GALERÍA ===== */}
