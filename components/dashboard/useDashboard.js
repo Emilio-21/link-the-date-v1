@@ -263,6 +263,7 @@ export function useDashboard() {
           show_kids_policy: form.showKidsPolicy,
           show_gifts: form.showGifts,
           show_bank: form.showBank,
+          show_table: form.showTable,
           rsvp_deadline: form.rsvpDeadline || null,
           template: form.template || null,
           cover_url: form.coverUrl?.trim() || null,
@@ -294,7 +295,7 @@ export function useDashboard() {
 
   // ── invitados ─────────────────────────────────────────────────────────
   const addGuest = useCallback(
-    async ({ name, max_guests, email: gEmail, phone }) => {
+    async ({ name, max_guests, email: gEmail, phone, table_assignment }) => {
       if (!selectedEventId) return false;
       const trimmed = (name || "").trim();
       if (!trimmed) return false;
@@ -307,6 +308,7 @@ export function useDashboard() {
           max_guests: Number(max_guests) || 1,
           email: gEmail?.trim() || null,
           phone: phone?.trim() || null,
+          table_assignment: table_assignment?.trim() || null,
         }),
       });
       const p = await safeJson(res);
@@ -322,7 +324,7 @@ export function useDashboard() {
   );
 
   const updateGuest = useCallback(
-    async (id, { name, email: gEmail, phone, max_guests }) => {
+    async (id, { name, email: gEmail, phone, max_guests, table_assignment }) => {
       if (!id) return false;
       const trimmed = (name || "").trim();
       if (!trimmed) return false;
@@ -335,6 +337,7 @@ export function useDashboard() {
           email: gEmail?.trim() || null,
           phone: phone?.trim() || null,
           max_guests: Number(max_guests) || 1,
+          table_assignment: table_assignment?.trim() || null,
         }),
       });
       const p = await safeJson(res);

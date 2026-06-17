@@ -129,6 +129,7 @@ export function PlantillaDusk({ event, guest, rsvp }) {
   const gallery    = Array.isArray(event?.gallery_urls)
     ? event.gallery_urls.filter(Boolean)
     : [];
+  const tableLabel = event?.show_table && guest?.table_assignment ? guest.table_assignment : null;
 
   /* time extraction (mirrors Plantilla.jsx) */
   const rawTime = (() => {
@@ -335,6 +336,13 @@ export function PlantillaDusk({ event, guest, rsvp }) {
             <AutumnLeaf color={T.gold} size={14} rotate={30} />
           </div>
           <Display size={52} color={T.ink}>{(guest?.name || "").trim() || "You're invited"}</Display>
+          {tableLabel && (
+            <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", border: `1px solid ${T.ember}`, borderRadius: 40, fontFamily: CAPS, fontSize: 10, letterSpacing: 3, color: T.ember }}>
+                Mesa {tableLabel}
+              </span>
+            </div>
+          )}
           <div style={{ height: 18 }} />
           <Body size={14} color={T.inkSoft}
                 style={{ maxWidth: 280, margin: "0 auto", textWrap: "pretty", whiteSpace: "pre-line" }}>

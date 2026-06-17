@@ -42,7 +42,7 @@ export async function GET(req) {
 
     const { data: guest, error: gErr } = await supabase
       .from("guests")
-      .select("id,event_id,name,email,phone,max_guests,token,created_at")
+      .select("id,event_id,name,email,phone,max_guests,table_assignment,token,created_at")
       .eq("token", token)
       .maybeSingle();
 
@@ -60,7 +60,7 @@ export async function GET(req) {
         dress_code_text, kids_policy_text,
         gift_label_1, gift_label_2, gifts_message,
         bank_name,
-        show_dress_code, show_kids_policy, show_gifts, show_bank,
+        show_dress_code, show_kids_policy, show_gifts, show_bank, show_table,
         template,
         cover_url, gallery_urls, rsvp_deadline
       `)

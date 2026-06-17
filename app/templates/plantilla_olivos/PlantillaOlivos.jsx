@@ -141,6 +141,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const guestName = (guest?.name || "").trim() || "Invitado especial";
   const maxGuests = Math.max(1, Number(guest?.max_guests) || 1);
   const passesWord = maxGuests === 1 ? "1 pase reservado" : `${maxGuests} pases reservados`;
+  const tableLabel = event?.show_table && guest?.table_assignment ? guest.table_assignment : null;
 
   const mainMessage = event?.main_message
     || "Será un honor contar con tu presencia para celebrar el comienzo de nuestra nueva vida juntos. Hemos reservado un lugar especial para ti.";
@@ -268,9 +269,17 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <div style={{ position: "relative", padding: "42px 30px 40px", textAlign: "center" }}>
               <div style={{ fontFamily: SERIF, fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: T.soft, marginBottom: 18 }}>Con todo nuestro cariño,</div>
               <div style={{ fontFamily: SCRIPT, fontSize: 54, lineHeight: 1.12, paddingBottom: 4, color: T.navy }}>{guestName}</div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, padding: "7px 16px", border: "1px solid rgba(176,141,82,.4)", borderRadius: 40, background: "rgba(194,168,120,.1)" }}>
-                <span style={{ width: 5, height: 5, background: T.gold, transform: "rotate(45deg)" }} />
-                <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark }}>{passesWord}</span>
+              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 14 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", border: "1px solid rgba(176,141,82,.4)", borderRadius: 40, background: "rgba(194,168,120,.1)" }}>
+                  <span style={{ width: 5, height: 5, background: T.gold, transform: "rotate(45deg)" }} />
+                  <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark }}>{passesWord}</span>
+                </div>
+                {tableLabel && (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", border: "1px solid rgba(78,102,121,.35)", borderRadius: 40, background: "rgba(111,138,163,.1)" }}>
+                    <span style={{ width: 5, height: 5, background: T.blue, transform: "rotate(45deg)" }} />
+                    <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.16em", textTransform: "uppercase", color: T.navy }}>Mesa {tableLabel}</span>
+                  </div>
+                )}
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 9, margin: "22px 0" }}>
                 <span style={{ width: 28, height: 1, background: "rgba(78,102,121,.3)" }} />

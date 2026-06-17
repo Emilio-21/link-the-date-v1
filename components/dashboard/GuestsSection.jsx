@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Badge, Btn, Card, Ico, Input, Label } from "./primitives";
 
-const EMPTY_NEW = { name: "", passes: 1, email: "", phone: "" };
+const EMPTY_NEW = { name: "", passes: 1, email: "", phone: "", table: "" };
 
 function NewGuestForm({ onSubmit, onCancel, busy }) {
   const [form, setForm] = useState(EMPTY_NEW);
@@ -17,6 +17,7 @@ function NewGuestForm({ onSubmit, onCancel, busy }) {
       max_guests: form.passes,
       email: form.email,
       phone: form.phone,
+      table_assignment: form.table,
     });
     if (ok) setForm(EMPTY_NEW);
   }
@@ -42,6 +43,10 @@ function NewGuestForm({ onSubmit, onCancel, busy }) {
         <div>
           <Label>Teléfono</Label>
           <Input value={form.phone} onChange={set("phone")} placeholder="Opcional" />
+        </div>
+        <div>
+          <Label>Mesa</Label>
+          <Input value={form.table} onChange={set("table")} placeholder="Opcional (ej. 5 o Jardín)" />
         </div>
       </div>
       <div className="mt-4 flex justify-end gap-2">
@@ -70,6 +75,7 @@ function GuestRow({ guest, onCopyLink, onSaveEdit, onDelete }) {
     email: guest.email ?? "",
     phone: guest.phone ?? "",
     passes: Number(guest.max_guests) || 1,
+    table: guest.table_assignment ?? "",
   });
   const [busyUpdate, setBusyUpdate] = useState(false);
   const [busyDelete, setBusyDelete] = useState(false);
@@ -82,6 +88,7 @@ function GuestRow({ guest, onCopyLink, onSaveEdit, onDelete }) {
       email: guest.email ?? "",
       phone: guest.phone ?? "",
       passes: Number(guest.max_guests) || 1,
+      table: guest.table_assignment ?? "",
     });
     setEditing(true);
   }
@@ -94,6 +101,7 @@ function GuestRow({ guest, onCopyLink, onSaveEdit, onDelete }) {
       email: form.email,
       phone: form.phone,
       max_guests: form.passes,
+      table_assignment: form.table,
     });
     setBusyUpdate(false);
     if (ok) setEditing(false);
@@ -141,6 +149,15 @@ function GuestRow({ guest, onCopyLink, onSaveEdit, onDelete }) {
           />
         ) : (
           <Badge>{guest.max_guests ?? 1}</Badge>
+        )}
+      </td>
+      <td className="px-4 py-3 text-stone-500 text-xs">
+        {editing ? (
+          <Input className="py-1.5 text-xs w-24" value={form.table} onChange={set("table")} placeholder="Mesa" />
+        ) : (
+          guest.table_assignment
+            ? <Badge color="amber">{guest.table_assignment}</Badge>
+            : <span className="text-stone-200">—</span>
         )}
       </td>
       <td className="px-4 py-3">
@@ -204,7 +221,7 @@ export default function GuestsSection({
     return ok;
   }
 
-  const headers = ["Nombre", "Email", "Teléfono", "Pases", "RSVP", "Asistentes", "Link", ""];
+  const headers = ["Nombre", "Email", "Teléfono", "Pases", "Mesa", "RSVP", "Asistentes", "Link", ""];
 
   return (
     <section>

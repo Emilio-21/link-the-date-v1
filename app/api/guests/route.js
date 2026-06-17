@@ -55,6 +55,7 @@ export async function GET(req) {
         email,
         phone,
         max_guests,
+        table_assignment,
         token,
         created_at,
         rsvps (
@@ -82,6 +83,7 @@ export async function GET(req) {
         email: g.email,
         phone: g.phone,
         max_guests: g.max_guests,
+        table_assignment: g.table_assignment,
         token: g.token,
         created_at: g.created_at,
         rsvp_status: r ? (r.attending ? "yes" : "no") : null,
@@ -110,6 +112,7 @@ export async function POST(req) {
     const name = (body?.name || "").trim();
     const email = (body?.email || "").trim() || null;
     const phone = (body?.phone || "").trim() || null;
+    const table_assignment = (body?.table_assignment || "").trim() || null;
 
     if (!event_id || !name) {
       return NextResponse.json(
@@ -131,9 +134,10 @@ export async function POST(req) {
         max_guests: safeMax,
         email,
         phone,
+        table_assignment,
         token,
       })
-      .select("id,event_id,name,email,phone,max_guests,token,created_at")
+      .select("id,event_id,name,email,phone,max_guests,table_assignment,token,created_at")
       .single();
 
     if (error) {
@@ -164,6 +168,7 @@ export async function PATCH(req) {
     if ("email" in body) updates.email = (body.email || "").trim() || null;
     if ("phone" in body) updates.phone = (body.phone || "").trim() || null;
     if (body.max_guests != null) updates.max_guests = pickMaxGuests(body);
+    if ("table_assignment" in body) updates.table_assignment = (body.table_assignment || "").trim() || null;
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: "Nada que actualizar" }, { status: 400 });
@@ -174,7 +179,7 @@ export async function PATCH(req) {
       .from("guests")
       .update(updates)
       .eq("id", id)
-      .select("id,event_id,name,email,phone,max_guests,token,created_at")
+      .select("id,event_id,name,email,phone,max_guests,table_assignment,token,created_at")
       .single();
 
     if (error) {

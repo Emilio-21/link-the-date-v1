@@ -32,6 +32,7 @@ const EMPTY = {
   showKidsPolicy: true,
   showGifts: true,
   showBank: true,
+  showTable: false,
   rsvpDeadline: "",
   template: DEFAULT_TEMPLATE,
   coverUrl: "",
@@ -68,6 +69,7 @@ export function eventToForm(ev) {
     showKidsPolicy: ev.show_kids_policy !== false,
     showGifts: ev.show_gifts !== false,
     showBank: ev.show_bank !== false,
+    showTable: ev.show_table === true,
     rsvpDeadline: ev.rsvp_deadline ?? "",
     template: ev.template || DEFAULT_TEMPLATE,
     coverUrl: ev.cover_url ?? "",
@@ -264,6 +266,17 @@ export default function EventForm({
                   <Input value={form.kidsPolicyText} onChange={set("kidsPolicyText")} placeholder="Sin niños" />
                 </div>
               )}
+
+              <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-white p-3">
+                <Switch
+                  checked={form.showTable}
+                  onChange={toggle("showTable")}
+                  label="Mostrar mesa asignada"
+                />
+                <p className="text-[11px] text-stone-400 mt-1.5 ml-12">
+                  Actívalo cuando tengas el acomodo. La mesa de cada invitado se edita en la lista de invitados (abajo).
+                </p>
+              </div>
             </div>
           </div>
         )}
