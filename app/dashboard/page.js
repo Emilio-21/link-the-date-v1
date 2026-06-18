@@ -1,87 +1,321 @@
-// app/dashboard/page.js — orquestador delgado
+// app/dashboard/page.js — orquestador del dashboard (look "Olivos")
 "use client";
 
-import { Btn, ErrorBanner, Ico, Toast } from "@/components/dashboard/primitives";
+import { useMemo } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import EventsSection from "@/components/dashboard/EventsSection";
 import GuestsSection from "@/components/dashboard/GuestsSection";
 import { useDashboard } from "@/components/dashboard/useDashboard";
+import { C, glass, eyebrow, initialsOf, fmtCompact, daysUntil } from "@/components/dashboard/theme";
+
+function BackgroundDecor() {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 0,
+        overflow: "hidden",
+        background: "linear-gradient(140deg,#fbfaf5 0%,#f6efe1 55%,#fcf9f3 100%)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute", top: -140, left: -90, width: 520, height: 520, borderRadius: "50%",
+          background: "radial-gradient(circle,rgba(196,163,94,0.42),transparent 68%)",
+          filter: "blur(26px)", animation: "ltdBlob 18s ease-in-out infinite",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute", top: "38%", right: -120, width: 460, height: 460, borderRadius: "50%",
+          background: "radial-gradient(circle,rgba(190,150,138,0.34),transparent 70%)",
+          filter: "blur(30px)", animation: "ltdBlob2 22s ease-in-out infinite",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute", bottom: -160, left: "34%", width: 480, height: 480, borderRadius: "50%",
+          background: "radial-gradient(circle,rgba(212,184,120,0.3),transparent 70%)",
+          filter: "blur(34px)", animation: "ltdBlob 26s ease-in-out infinite",
+        }}
+      />
+    </div>
+  );
+}
+
+function Topbar({ email, displayName, onLogout }) {
+  return (
+    <header
+      style={{
+        position: "sticky", top: 0, zIndex: 30, display: "flex", alignItems: "center",
+        justifyContent: "space-between", flexWrap: "wrap", gap: 14, padding: "14px 30px",
+        background: "rgba(252,251,247,0.62)",
+        backdropFilter: "blur(20px) saturate(150%)", WebkitBackdropFilter: "blur(20px) saturate(150%)",
+        borderBottom: "1px solid rgba(255,255,255,0.6)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div
+          style={{
+            width: 40, height: 40, borderRadius: 13,
+            background: "linear-gradient(135deg,#c9a85a,#9a7a38)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 6px 16px rgba(176,141,76,0.32)",
+          }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f6f5ee" strokeWidth="1.7">
+            <circle cx="9" cy="13" r="6" />
+            <circle cx="15" cy="13" r="6" />
+            <path d="M9 5.2 10.3 7M15 5.2 13.7 7" strokeLinecap="round" />
+          </svg>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
+          <span className="font-serif-ltd" style={{ fontWeight: 700, fontSize: 23, letterSpacing: ".2px", color: C.ink }}>
+            Link the Date
+          </span>
+          <span style={{ fontSize: 10.5, letterSpacing: "2.5px", textTransform: "uppercase", color: C.mutedSoft, fontWeight: 600 }}>
+            Panel de bodas
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 9, padding: "5px 6px 5px 14px",
+            background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.7)",
+            borderRadius: 99, boxShadow: "0 4px 14px rgba(74,78,52,0.06)",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: 1.15 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: "#3a382f" }}>{email || "—"}</span>
+            <span style={{ fontSize: 10.5, color: C.mutedSoft, fontWeight: 600 }}>Plan Pareja</span>
+          </div>
+          <div
+            style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: "linear-gradient(135deg,#c8a48f,#a8b082)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#fff", fontWeight: 700, fontSize: 13,
+            }}
+          >
+            {initialsOf(displayName || email || "·")}
+          </div>
+        </div>
+        <button
+          onClick={onLogout}
+          style={{
+            display: "flex", alignItems: "center", gap: 7, padding: "9px 16px",
+            background: "rgba(255,255,255,0.5)", border: "1px solid rgba(120,115,95,0.2)",
+            borderRadius: 12, color: "#5a564b", fontWeight: 700, fontSize: 12.5, cursor: "pointer",
+          }}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+            <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 12H3M3 12l4-4M3 12l4 4" />
+          </svg>
+          Salir
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function WelcomeHeader({ displayName, eventsCount, nextEvent, rsvpStats }) {
+  const responded = rsvpStats.yes + rsvpStats.no + rsvpStats.pending;
+  const confPct = responded ? Math.round((rsvpStats.yes / responded) * 100) : 0;
+  const chip = {
+    display: "flex", flexDirection: "column", gap: 2, padding: "13px 18px",
+    background: "rgba(255,255,255,0.58)", border: "1px solid rgba(255,255,255,0.72)",
+    borderRadius: 16, minWidth: 120,
+  };
+  const chipLabel = { fontSize: 10.5, letterSpacing: "1px", textTransform: "uppercase", color: "#b09a6a", fontWeight: 700 };
+  const chipSub = { fontSize: 11.5, color: C.mutedSoft, fontWeight: 600 };
+
+  return (
+    <header
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap",
+        gap: 20, padding: "24px 28px", ...glass(24, "24px 28px"),
+        boxShadow: "0 12px 36px rgba(176,141,76,0.1)",
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 240 }}>
+        <span style={{ ...eyebrow, color: "#b09a6a", letterSpacing: "2.5px" }}>
+          {displayName} · {eventsCount} evento{eventsCount !== 1 ? "s" : ""}
+        </span>
+        <h1 className="font-serif-ltd" style={{ margin: 0, fontWeight: 700, fontSize: 40, letterSpacing: "-.3px", color: C.ink, lineHeight: 1 }}>
+          Hola, {displayName}
+        </h1>
+        <p style={{ margin: "3px 0 0", fontSize: 14, color: C.muted, fontWeight: 500 }}>
+          Administra tus eventos, invitaciones y confirmaciones desde un solo lugar.
+        </p>
+      </div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ ...chip, minWidth: 130 }}>
+          <span style={chipLabel}>Próximo evento</span>
+          <span style={{ fontWeight: 800, fontSize: 15, color: C.inkSoft }}>
+            {nextEvent ? nextEvent.name : "—"}
+          </span>
+          <span style={chipSub}>
+            {nextEvent ? fmtCompact(nextEvent.event_datetime, nextEvent.event_date) : "Sin eventos"}
+          </span>
+        </div>
+        <div style={chip}>
+          <span style={chipLabel}>Confirmados</span>
+          <span style={{ fontWeight: 800, fontSize: 15, color: C.goldDeep }}>{confPct}%</span>
+          <span style={chipSub}>{rsvpStats.yes} de {responded || 0}</span>
+        </div>
+        <div style={chip}>
+          <span style={chipLabel}>Personas</span>
+          <span style={{ fontWeight: 800, fontSize: 15, color: C.inkSoft }}>{rsvpStats.confirmed}</span>
+          <span style={chipSub}>total asistentes</span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Toast({ toast }) {
+  if (!toast) return null;
+  return (
+    <div
+      style={{
+        position: "fixed", left: "50%", bottom: 34, zIndex: 60, transform: "translateX(-50%)",
+        display: "flex", alignItems: "center", gap: 10, padding: "13px 22px",
+        background: "rgba(44,42,36,0.94)", backdropFilter: "blur(8px)", borderRadius: 14,
+        boxShadow: "0 12px 34px rgba(0,0,0,0.25)", animation: "ltdToast .25s ease",
+      }}
+    >
+      <span
+        style={{
+          width: 22, height: 22, borderRadius: "50%",
+          background: toast.type === "error" ? C.terracotta : "#c9a85a",
+          display: "flex", alignItems: "center", justifyContent: "center", flex: "none",
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 12l5 5L20 6" />
+        </svg>
+      </span>
+      <span style={{ color: "#f6f5ee", fontWeight: 600, fontSize: 13.5 }}>{toast.msg}</span>
+    </div>
+  );
+}
+
+function ErrorBanner({ message, onClose }) {
+  if (!message) return null;
+  return (
+    <div
+      style={{
+        display: "flex", alignItems: "center", gap: 12, padding: "13px 18px",
+        background: "rgba(176,106,82,0.12)", border: "1px solid rgba(176,106,82,0.32)",
+        borderRadius: 16, color: "#8a4a35", fontSize: 13.5, fontWeight: 600,
+      }}
+    >
+      <span style={{ flex: 1 }}>{message}</span>
+      <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#a85c43", fontWeight: 700 }}>
+        ✕
+      </button>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const d = useDashboard();
 
+  const selectedOrg = useMemo(
+    () => d.orgs.find((o) => o.id === d.selectedOrgId) || null,
+    [d.orgs, d.selectedOrgId]
+  );
+
+  const displayName = selectedOrg?.name || (d.email ? d.email.split("@")[0] : "tus eventos");
+
+  const nextEvent = useMemo(() => {
+    const upcoming = d.events
+      .map((e) => ({ e, days: daysUntil(e.event_datetime, e.event_date) }))
+      .filter((x) => x.days !== null)
+      .sort((a, b) => a.days - b.days);
+    if (upcoming.length) return upcoming[0].e;
+    return d.currentEvent || d.events[0] || null;
+  }, [d.events, d.currentEvent]);
+
   if (d.loading) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-stone-400">
-          <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-rose-400 animate-spin" />
-          <span className="text-sm font-medium">Cargando tu dashboard…</span>
+      <div className="font-sans-ltd" style={{ minHeight: "100vh", position: "relative", color: C.ink }}>
+        <BackgroundDecor />
+        <div style={{ position: "relative", zIndex: 1, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, color: C.muted }}>
+            <div
+              style={{
+                width: 34, height: 34, borderRadius: "50%",
+                border: "3px solid rgba(176,141,76,0.18)", borderTopColor: C.gold,
+                animation: "ltdSpin 0.8s linear infinite",
+              }}
+            />
+            <span style={{ fontSize: 14, fontWeight: 600 }}>Cargando tu dashboard…</span>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="ltd-scope font-sans-ltd" style={{ position: "relative", minHeight: "100vh", color: C.ink, overflow: "hidden" }}>
+      <BackgroundDecor />
       <Toast toast={d.toast} />
 
-      <header className="sticky top-0 z-40 border-b border-stone-100 bg-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-500 text-white text-xs font-black tracking-tight">
-              L
-            </div>
-            <div>
-              <div className="text-sm font-black tracking-tight text-stone-900">Link the Date</div>
-              {d.email && (
-                <div className="text-[11px] text-stone-400 leading-none mt-0.5">{d.email}</div>
-              )}
-            </div>
-          </div>
-          <Btn variant="ghost" size="sm" onClick={d.logout}>
-            <Ico.Logout />
-            Salir
-          </Btn>
-        </div>
-      </header>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Topbar email={d.email} displayName={displayName} onLogout={d.logout} />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-8">
-        <ErrorBanner message={d.errorMsg} onClose={() => d.setErrorMsg(null)} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 1500, margin: "0 auto", padding: "26px 30px 70px" }}>
+          <ErrorBanner message={d.errorMsg} onClose={() => d.setErrorMsg(null)} />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
-          <Sidebar
-            orgs={d.orgs}
-            selectedOrgId={d.selectedOrgId}
-            onSelectOrg={d.setSelectedOrgId}
-            onCreateOrg={d.createOrganization}
-            currentEvent={d.currentEvent}
-            guestsCount={d.guests.length}
+          <WelcomeHeader
+            displayName={displayName}
+            eventsCount={d.events.length}
+            nextEvent={nextEvent}
             rsvpStats={d.rsvpStats}
           />
 
-          <div className="space-y-6 min-w-0">
-            <EventsSection
-              events={d.events}
-              selectedEventId={d.selectedEventId}
-              selectedOrgId={d.selectedOrgId}
-              onCreateEvent={d.createEvent}
-              onUpdateEvent={d.updateEvent}
-              onSelectEvent={d.selectEventAndLoadGuests}
-              onCopyInviteLink={d.copyInviteLink}
-            />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 22, alignItems: "flex-start" }}>
+            <aside style={{ flex: "1 1 290px", maxWidth: 340, minWidth: 280, display: "flex", flexDirection: "column", gap: 20 }}>
+              <Sidebar
+                orgs={d.orgs}
+                selectedOrgId={d.selectedOrgId}
+                onSelectOrg={d.setSelectedOrgId}
+                onCreateOrg={d.createOrganization}
+                currentEvent={d.currentEvent}
+                guestsCount={d.guests.length}
+                eventsCount={d.events.length}
+                rsvpStats={d.rsvpStats}
+              />
+            </aside>
 
-            <GuestsSection
-              currentEvent={d.currentEvent}
-              selectedEventId={d.selectedEventId}
-              guests={d.guests}
-              onAddGuest={d.addGuest}
-              onUpdateGuest={d.updateGuest}
-              onDeleteGuest={d.deleteGuest}
-              onCopyGuestLink={d.copyGuestLink}
-            />
+            <main style={{ flex: "4 1 600px", minWidth: 0, display: "flex", flexDirection: "column", gap: 22 }}>
+              <EventsSection
+                events={d.events}
+                selectedEventId={d.selectedEventId}
+                selectedOrgId={d.selectedOrgId}
+                onCreateEvent={d.createEvent}
+                onUpdateEvent={d.updateEvent}
+                onSelectEvent={d.selectEventAndLoadGuests}
+                onCopyInviteLink={d.copyInviteLink}
+              />
+
+              <GuestsSection
+                currentEvent={d.currentEvent}
+                selectedEventId={d.selectedEventId}
+                guests={d.guests}
+                onAddGuest={d.addGuest}
+                onUpdateGuest={d.updateGuest}
+                onDeleteGuest={d.deleteGuest}
+                onCopyGuestLink={d.copyGuestLink}
+              />
+            </main>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

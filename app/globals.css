@@ -16,11 +16,14 @@ body {
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* --- Fuentes de la plantilla (vienen de next/font en layout.js) --- */
+}
+
+/* --- Fuentes de la plantilla (vienen de next/font en layout.js) --- */
 :root {
   --font-cinzel: ui-serif, Georgia, serif;
   --font-pinyon: ui-serif, Georgia, serif;
+  --font-cormorant: ui-serif, Georgia, serif;
+  --font-manrope: ui-sans-serif, system-ui, sans-serif;
 }
 
 .font-cinzel {
@@ -30,4 +33,34 @@ body {
 .font-pinyon {
   font-family: var(--font-pinyon);
 }
+
+/* Tipografías del dashboard (look "Olivos") */
+.font-serif-ltd {
+  font-family: var(--font-cormorant), "Cormorant Garamond", serif;
 }
+
+.font-sans-ltd {
+  font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
+}
+
+/* Animaciones del fondo del dashboard */
+@keyframes ltdBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(26px, -30px) scale(1.1); }
+}
+@keyframes ltdBlob2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 24px) scale(1.12); }
+}
+@keyframes ltdToast {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes ltdSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Scrollbar suave en el dashboard */
+.ltd-scope ::-webkit-scrollbar { height: 9px; width: 9px; }
+.ltd-scope ::-webkit-scrollbar-track { background: transparent; }
+.ltd-scope ::-webkit-scrollbar-thumb { background: rgba(120,115,95,0.28); border-radius: 99px; }
