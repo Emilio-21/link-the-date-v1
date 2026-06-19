@@ -1,13 +1,26 @@
 // components/dashboard/GuestsSection.jsx — invitados con 3 vistas (look "Olivos")
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   C, glass, eyebrow, goldButton, fieldInput,
   RSVP, rsvpKey, AVATAR_BGS, initialsOf,
 } from "./theme";
 
 const EMPTY = { name: "", passes: 1, email: "", phone: "", table: "" };
+
+// Teléfono = ancho ≤ 640px (iPad y mayores se consideran "no teléfono").
+function useIsPhone() {
+  const [isPhone, setIsPhone] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsPhone(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isPhone;
+}
 
 const ICONS = {
   search: (
@@ -147,54 +160,6 @@ function GuestActions({ gv, hasToken, onCopy, onEdit, onDelete, layout = "icons"
   );
 }
 
-function TableView({ rows, onCopy, onEdit, onDelete }) {
-  const th = { padding: "13px 12px", fontWeight: 700 };
-  return (
-    <div style={{ overflowX: "auto", border: "1px solid rgba(255,255,255,0.7)", borderRadius: 18, background: "rgba(255,255,255,0.42)" }}>
-      <table style={{ width: "100%", minWidth: 880, borderCollapse: "collapse", fontSize: 13 }}>
-        <thead>
-          <tr style={{ textAlign: "left", color: C.mutedSoft, fontSize: 10.5, letterSpacing: "1.2px", textTransform: "uppercase" }}>
-            <th style={{ ...th, padding: "13px 16px" }}>Nombre</th>
-            <th style={th}>Contacto</th>
-            <th style={{ ...th, textAlign: "center" }}>Pases</th>
-            <th style={{ ...th, textAlign: "center" }}>Mesa</th>
-            <th style={th}>RSVP</th>
-            <th style={{ ...th, textAlign: "center" }}>Asisten</th>
-            <th style={{ ...th, padding: "13px 16px", textAlign: "right" }}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((gv) => (
-            <tr key={gv.raw.id} style={{ borderTop: "1px solid rgba(120,115,95,0.12)" }}>
-              <td style={{ padding: "12px 16px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: gv.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 11.5, flex: "none" }}>{gv.initials}</div>
-                  <span style={{ fontWeight: 700, color: C.inkSoft, whiteSpace: "nowrap" }}>{gv.name}</span>
-                </div>
-              </td>
-              <td style={{ padding: "12px 12px", color: C.textSoft }}>
-                <div style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{gv.email}</div>
-                <div style={{ fontSize: 11.5, color: C.mutedSoft, whiteSpace: "nowrap" }}>{gv.phone}</div>
-              </td>
-              <td style={{ padding: "12px 12px", textAlign: "center", fontWeight: 700, color: C.inkSoft }}>{gv.pases}</td>
-              <td style={{ padding: "12px 12px", textAlign: "center" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 30, padding: "4px 9px", background: "rgba(120,115,95,0.12)", borderRadius: 8, fontWeight: 700, color: "#5a564b" }}>{gv.mesa}</span>
-              </td>
-              <td style={{ padding: "12px 12px" }}>
-                <span style={rsvpPill(gv)}><span style={{ width: 6, height: 6, borderRadius: "50%", background: gv.rsvpColor }} />{gv.rsvpLabel}</span>
-              </td>
-              <td style={{ padding: "12px 12px", textAlign: "center", fontWeight: 700, color: C.inkSoft }}>{gv.asistentes}</td>
-              <td style={{ padding: "12px 16px" }}>
-                <GuestActions gv={gv} hasToken={!!gv.raw.token} onCopy={() => onCopy(gv.raw)} onEdit={() => onEdit(gv.raw)} onDelete={() => onDelete(gv.raw)} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 function RowsView({ rows, onCopy, onEdit, onDelete }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -267,7 +232,7 @@ export default function GuestsSection({
   onDeleteGuest,
   onCopyGuestLink,
 }) {
-  const [variant, setVariant] = useState("rows");
+  const isPhone = useIsPhone();
   const [showForm, setShowForm] = useState(false);
   const [editingGuest, setEditingGuest] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -314,24 +279,6 @@ export default function GuestsSection({
     setShowForm(false);
     setEditingGuest(g);
   }
-
-  const seg = (key, label) => {
-    const active = variant === key;
-    return (
-      <button
-        key={key}
-        onClick={() => setVariant(key)}
-        style={{
-          padding: "8px 16px", borderRadius: 9, border: "none", cursor: "pointer",
-          fontWeight: 700, fontSize: 12.5,
-          background: active ? C.gold : "transparent",
-          color: active ? C.cream : "#7a756a", transition: ".15s",
-        }}
-      >
-        {label}
-      </button>
-    );
-  };
 
   return (
     <section className="ltd-section" style={{ ...glass(24, null), background: "rgba(255,255,255,0.5)" }}>
@@ -384,17 +331,6 @@ export default function GuestsSection({
             />
           )}
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: 4, background: "rgba(120,115,95,0.1)", borderRadius: 12 }}>
-              {seg("table", "Tabla")}
-              {seg("rows", "Filas")}
-              {seg("cards", "Tarjetas")}
-            </div>
-            <span style={{ fontSize: 11.5, color: C.mutedSoft, fontWeight: 600 }}>
-              Edita o copia el link de cada invitado
-            </span>
-          </div>
-
           {guests.length === 0 ? (
             <div style={{ padding: "48px 20px", textAlign: "center", border: "1.5px dashed rgba(120,115,95,0.28)", borderRadius: 18, color: C.mutedSoft }}>
               <p style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>Sin invitados todavía.</p>
@@ -404,12 +340,10 @@ export default function GuestsSection({
             <div style={{ padding: "32px 20px", textAlign: "center", color: C.mutedSoft, fontWeight: 600, fontSize: 14 }}>
               Ningún invitado coincide con “{query}”.
             </div>
-          ) : variant === "table" ? (
-            <TableView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
-          ) : variant === "rows" ? (
-            <RowsView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
-          ) : (
+          ) : isPhone ? (
             <CardsView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+          ) : (
+            <RowsView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
           )}
         </>
       )}

@@ -1,7 +1,7 @@
 // app/dashboard/page.js — orquestador del dashboard (look "Olivos")
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import EventsSection from "@/components/dashboard/EventsSection";
 import GuestsSection from "@/components/dashboard/GuestsSection";
@@ -81,44 +81,103 @@ function Topbar({ email, displayName, onLogout }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <UserMenu email={email} displayName={displayName} onLogout={onLogout} />
+    </header>
+  );
+}
+
+const LogoutIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+    <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 12H3M3 12l4-4M3 12l4 4" />
+  </svg>
+);
+
+function UserMenu({ email, displayName, onLogout }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="ltd-user-chip"
+        aria-label="Menú de usuario"
+        style={{
+          display: "flex", alignItems: "center", gap: 9, padding: "5px 6px 5px 14px",
+          background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.7)",
+          borderRadius: 99, boxShadow: "0 4px 14px rgba(74,78,52,0.06)", cursor: "pointer",
+        }}
+      >
+        <div className="ltd-user-info" style={{ flexDirection: "column", alignItems: "flex-end", lineHeight: 1.15 }}>
+          <span className="ltd-email" style={{ fontSize: 12.5, fontWeight: 700, color: "#3a382f" }}>{email || "—"}</span>
+          <span style={{ fontSize: 10.5, color: C.mutedSoft, fontWeight: 600 }}>Plan Pareja</span>
+        </div>
         <div
           style={{
-            display: "flex", alignItems: "center", gap: 9, padding: "5px 6px 5px 14px",
-            background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.7)",
-            borderRadius: 99, boxShadow: "0 4px 14px rgba(74,78,52,0.06)",
+            width: 34, height: 34, borderRadius: "50%",
+            background: "linear-gradient(135deg,#c8a48f,#a8b082)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", fontWeight: 700, fontSize: 13, flex: "none",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: 1.15 }}>
-            <span className="ltd-email" style={{ fontSize: 12.5, fontWeight: 700, color: "#3a382f" }}>{email || "—"}</span>
-            <span style={{ fontSize: 10.5, color: C.mutedSoft, fontWeight: 600 }}>Plan Pareja</span>
-          </div>
+          {initialsOf(displayName || email || "·")}
+        </div>
+      </button>
+
+      <button onClick={onLogout} className="ltd-logout-btn"
+        style={{
+          display: "flex", alignItems: "center", gap: 7, padding: "9px 16px",
+          background: "rgba(255,255,255,0.5)", border: "1px solid rgba(120,115,95,0.2)",
+          borderRadius: 12, color: "#5a564b", fontWeight: 700, fontSize: 12.5, cursor: "pointer",
+        }}
+      >
+        <LogoutIcon />
+        Salir
+      </button>
+
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 45 }} />
           <div
             style={{
-              width: 34, height: 34, borderRadius: "50%",
-              background: "linear-gradient(135deg,#c8a48f,#a8b082)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#fff", fontWeight: 700, fontSize: 13,
+              position: "absolute", top: "calc(100% + 10px)", right: 0, zIndex: 50, minWidth: 220,
+              ...glass(16, 8), background: "rgba(252,251,247,0.96)", boxShadow: "0 16px 40px rgba(74,78,52,0.18)",
             }}
           >
-            {initialsOf(displayName || email || "·")}
+            <div style={{ padding: "10px 12px 12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    width: 38, height: 38, borderRadius: "50%",
+                    background: "linear-gradient(135deg,#c8a48f,#a8b082)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#fff", fontWeight: 700, fontSize: 14, flex: "none",
+                  }}
+                >
+                  {initialsOf(displayName || email || "·")}
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.inkSoft, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {email || "—"}
+                  </div>
+                  <div style={{ fontSize: 11, color: C.mutedSoft, fontWeight: 600 }}>Plan Pareja</div>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={onLogout}
+              style={{
+                display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px",
+                background: "transparent", border: "none", borderTop: "1px solid rgba(120,115,95,0.15)",
+                color: C.terracotta, fontWeight: 700, fontSize: 13, cursor: "pointer", borderRadius: "0 0 12px 12px",
+              }}
+            >
+              <LogoutIcon />
+              Cerrar sesión
+            </button>
           </div>
-        </div>
-        <button
-          onClick={onLogout}
-          style={{
-            display: "flex", alignItems: "center", gap: 7, padding: "9px 16px",
-            background: "rgba(255,255,255,0.5)", border: "1px solid rgba(120,115,95,0.2)",
-            borderRadius: 12, color: "#5a564b", fontWeight: 700, fontSize: 12.5, cursor: "pointer",
-          }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
-            <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 12H3M3 12l4-4M3 12l4 4" />
-          </svg>
-          Salir
-        </button>
-      </div>
-    </header>
+        </>
+      )}
+    </div>
   );
 }
 

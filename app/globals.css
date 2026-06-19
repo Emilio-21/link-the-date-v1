@@ -80,6 +80,9 @@ body {
 .ltd-welcome-title { font-size: 40px; }
 .ltd-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* Menú de usuario del topbar */
+.ltd-user-info { display: flex; }
+
 /* Chips de estadísticas: columnas SIEMPRE iguales (sin huérfanos) */
 .ltd-stat-grid {
   display: grid;
@@ -113,4 +116,16 @@ body {
   .ltd-stat-grid { grid-template-columns: 1fr; }
   .ltd-welcome-title { font-size: 27px; }
   .ltd-email { max-width: 150px; }
+}
+
+/* En móvil el usuario es solo una "bolita": menú al tocar */
+@media (max-width: 640px) {
+  .ltd-user-info { display: none; }
+  .ltd-logout-btn { display: none; }
+  .ltd-user-chip {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
 }
