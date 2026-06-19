@@ -47,9 +47,10 @@ function BackgroundDecor() {
 function Topbar({ email, displayName, onLogout }) {
   return (
     <header
+      className="ltd-topbar"
       style={{
         position: "sticky", top: 0, zIndex: 30, display: "flex", alignItems: "center",
-        justifyContent: "space-between", flexWrap: "wrap", gap: 14, padding: "14px 30px",
+        justifyContent: "space-between", flexWrap: "wrap", gap: 14,
         background: "rgba(252,251,247,0.62)",
         backdropFilter: "blur(20px) saturate(150%)", WebkitBackdropFilter: "blur(20px) saturate(150%)",
         borderBottom: "1px solid rgba(255,255,255,0.6)",
@@ -89,7 +90,7 @@ function Topbar({ email, displayName, onLogout }) {
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: 1.15 }}>
-            <span style={{ fontSize: 12.5, fontWeight: 700, color: "#3a382f" }}>{email || "—"}</span>
+            <span className="ltd-email" style={{ fontSize: 12.5, fontWeight: 700, color: "#3a382f" }}>{email || "—"}</span>
             <span style={{ fontSize: 10.5, color: C.mutedSoft, fontWeight: 600 }}>Plan Pareja</span>
           </div>
           <div
@@ -125,36 +126,38 @@ function WelcomeHeader({ displayName, eventsCount, nextEvent, rsvpStats }) {
   const responded = rsvpStats.yes + rsvpStats.no + rsvpStats.pending;
   const confPct = responded ? Math.round((rsvpStats.yes / responded) * 100) : 0;
   const chip = {
-    display: "flex", flexDirection: "column", gap: 2, padding: "13px 18px",
+    display: "flex", flexDirection: "column", gap: 2, padding: "13px 16px",
     background: "rgba(255,255,255,0.58)", border: "1px solid rgba(255,255,255,0.72)",
-    borderRadius: 16, minWidth: 120,
+    borderRadius: 16,
   };
   const chipLabel = { fontSize: 10.5, letterSpacing: "1px", textTransform: "uppercase", color: "#b09a6a", fontWeight: 700 };
+  const chipVal = { fontWeight: 800, fontSize: 15, color: C.inkSoft, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
   const chipSub = { fontSize: 11.5, color: C.mutedSoft, fontWeight: 600 };
 
   return (
     <header
+      className="ltd-welcome"
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap",
-        gap: 20, padding: "24px 28px", ...glass(24, "24px 28px"),
+        gap: 20, ...glass(24, null),
         boxShadow: "0 12px 36px rgba(176,141,76,0.1)",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 240 }}>
+      <div className="ltd-welcome-text" style={{ display: "flex", flexDirection: "column", gap: 5, flex: "1 1 240px" }}>
         <span style={{ ...eyebrow, color: "#b09a6a", letterSpacing: "2.5px" }}>
           {displayName} · {eventsCount} evento{eventsCount !== 1 ? "s" : ""}
         </span>
-        <h1 className="font-serif-ltd" style={{ margin: 0, fontWeight: 700, fontSize: 40, letterSpacing: "-.3px", color: C.ink, lineHeight: 1 }}>
+        <h1 className="font-serif-ltd ltd-welcome-title" style={{ margin: 0, fontWeight: 700, letterSpacing: "-.3px", color: C.ink, lineHeight: 1.02 }}>
           Hola, {displayName}
         </h1>
         <p style={{ margin: "3px 0 0", fontSize: 14, color: C.muted, fontWeight: 500 }}>
           Administra tus eventos, invitaciones y confirmaciones desde un solo lugar.
         </p>
       </div>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <div style={{ ...chip, minWidth: 130 }}>
+      <div className="ltd-stat-grid" style={{ flex: "1 1 320px" }}>
+        <div style={chip}>
           <span style={chipLabel}>Próximo evento</span>
-          <span style={{ fontWeight: 800, fontSize: 15, color: C.inkSoft }}>
+          <span style={chipVal} title={nextEvent ? nextEvent.name : "—"}>
             {nextEvent ? nextEvent.name : "—"}
           </span>
           <span style={chipSub}>
@@ -163,12 +166,12 @@ function WelcomeHeader({ displayName, eventsCount, nextEvent, rsvpStats }) {
         </div>
         <div style={chip}>
           <span style={chipLabel}>Confirmados</span>
-          <span style={{ fontWeight: 800, fontSize: 15, color: C.goldDeep }}>{confPct}%</span>
+          <span style={{ ...chipVal, color: C.goldDeep }}>{confPct}%</span>
           <span style={chipSub}>{rsvpStats.yes} de {responded || 0}</span>
         </div>
         <div style={chip}>
           <span style={chipLabel}>Personas</span>
-          <span style={{ fontWeight: 800, fontSize: 15, color: C.inkSoft }}>{rsvpStats.confirmed}</span>
+          <span style={chipVal}>{rsvpStats.confirmed}</span>
           <span style={chipSub}>total asistentes</span>
         </div>
       </div>
@@ -268,7 +271,7 @@ export default function DashboardPage() {
       <div style={{ position: "relative", zIndex: 1 }}>
         <Topbar email={d.email} displayName={displayName} onLogout={d.logout} />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 1500, margin: "0 auto", padding: "26px 30px 70px" }}>
+        <div className="ltd-page">
           <ErrorBanner message={d.errorMsg} onClose={() => d.setErrorMsg(null)} />
 
           <WelcomeHeader
@@ -278,8 +281,8 @@ export default function DashboardPage() {
             rsvpStats={d.rsvpStats}
           />
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 22, alignItems: "flex-start" }}>
-            <aside style={{ flex: "1 1 290px", maxWidth: 340, minWidth: 280, display: "flex", flexDirection: "column", gap: 20 }}>
+          <div className="ltd-cols">
+            <aside className="ltd-aside">
               <Sidebar
                 orgs={d.orgs}
                 selectedOrgId={d.selectedOrgId}
@@ -292,7 +295,7 @@ export default function DashboardPage() {
               />
             </aside>
 
-            <main style={{ flex: "4 1 600px", minWidth: 0, display: "flex", flexDirection: "column", gap: 22 }}>
+            <main className="ltd-main">
               <EventsSection
                 events={d.events}
                 selectedEventId={d.selectedEventId}

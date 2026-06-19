@@ -64,3 +64,53 @@ body {
 .ltd-scope ::-webkit-scrollbar { height: 9px; width: 9px; }
 .ltd-scope ::-webkit-scrollbar-track { background: transparent; }
 .ltd-scope ::-webkit-scrollbar-thumb { background: rgba(120,115,95,0.28); border-radius: 99px; }
+
+/* ===== Layout responsivo del dashboard ===== */
+.ltd-page {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 26px 30px 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.ltd-topbar { padding: 14px 30px; }
+.ltd-welcome { padding: 24px 28px; }
+.ltd-welcome-text { min-width: 240px; }
+.ltd-welcome-title { font-size: 40px; }
+.ltd-email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Chips de estadísticas: columnas SIEMPRE iguales (sin huérfanos) */
+.ltd-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.ltd-stat-grid > * { min-width: 0; }
+
+/* Secciones glass con padding controlado por CSS */
+.ltd-section { padding: 22px; }
+
+/* Columnas principales (aside + main) */
+.ltd-cols { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; }
+.ltd-aside { flex: 1 1 290px; max-width: 340px; min-width: 280px; display: flex; flex-direction: column; gap: 20px; }
+.ltd-main { flex: 4 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+
+@media (max-width: 760px) {
+  .ltd-page { padding: 16px 14px 56px; gap: 16px; }
+  .ltd-topbar { padding: 12px 16px; }
+  .ltd-welcome { padding: 20px 18px; }
+  .ltd-welcome-text { min-width: 0; }
+  .ltd-welcome-title { font-size: 30px; }
+  .ltd-section { padding: 18px 15px; }
+  .ltd-cols { gap: 16px; }
+  .ltd-aside { max-width: none; min-width: 0; flex-basis: 100%; gap: 16px; }
+  .ltd-main { gap: 16px; flex-basis: 100%; }
+  .ltd-stat-grid { gap: 10px; }
+}
+
+@media (max-width: 460px) {
+  .ltd-stat-grid { grid-template-columns: 1fr; }
+  .ltd-welcome-title { font-size: 27px; }
+  .ltd-email { max-width: 150px; }
+}

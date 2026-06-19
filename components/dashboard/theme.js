@@ -17,7 +17,8 @@ export const C = {
   cream: "#fbfaf6",
 };
 
-// Tarjeta "glass" reutilizable
+// Tarjeta "glass" reutilizable.
+// Pasa padding = null para controlarlo con CSS (clases responsivas).
 export const glass = (radius = 22, padding = 20) => ({
   background: "rgba(255,255,255,0.55)",
   backdropFilter: "blur(18px) saturate(140%)",
@@ -25,7 +26,7 @@ export const glass = (radius = 22, padding = 20) => ({
   border: "1px solid rgba(255,255,255,0.68)",
   borderRadius: radius,
   boxShadow: "0 12px 36px rgba(74,78,52,0.09)",
-  padding,
+  ...(padding != null ? { padding } : {}),
 });
 
 // Botón dorado principal

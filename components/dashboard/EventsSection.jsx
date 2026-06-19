@@ -195,7 +195,7 @@ export default function EventsSection({
   }
 
   return (
-    <section style={{ ...glass(24, 22), background: "rgba(255,255,255,0.5)" }}>
+    <section className="ltd-section" style={{ ...glass(24, null), background: "rgba(255,255,255,0.5)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
           <span style={eyebrow}>Tus eventos</span>
@@ -231,7 +231,7 @@ export default function EventsSection({
         </FormPanel>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(268px,1fr))", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,240px),1fr))", gap: 16 }}>
         {events.map((ev) => (
           <EventCard
             key={ev.id}

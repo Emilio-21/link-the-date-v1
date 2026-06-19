@@ -109,7 +109,7 @@ function GuestForm({ initial, editing, onSubmit, onCancel, busy }) {
   return (
     <div style={{ ...glass(18, 20), marginBottom: 16, background: "rgba(255,255,255,0.6)" }}>
       <span style={eyebrow}>{editing ? "Editar invitado" : "Nuevo invitado"}</span>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, margin: "12px 0 14px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,200px),1fr))", gap: 14, margin: "12px 0 14px" }}>
         {field("Nombre *", "name", { placeholder: "Nombre completo" })}
         {field("Pases", "passes", { type: "number", min: 1, max: 20 })}
         {field("Email", "email", { placeholder: "Opcional" })}
@@ -222,7 +222,7 @@ function RowsView({ rows, onCopy, onEdit, onDelete }) {
 
 function CardsView({ rows, onCopy, onEdit, onDelete }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(248px,1fr))", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,248px),1fr))", gap: 14 }}>
       {rows.map((gv) => (
         <div key={gv.raw.id} style={{ display: "flex", flexDirection: "column", gap: 13, padding: 18, background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.7)", borderRadius: 18, boxShadow: "0 6px 18px rgba(74,78,52,0.06)" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
@@ -334,7 +334,7 @@ export default function GuestsSection({
   };
 
   return (
-    <section style={{ ...glass(24, 22), background: "rgba(255,255,255,0.5)" }}>
+    <section className="ltd-section" style={{ ...glass(24, null), background: "rgba(255,255,255,0.5)" }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 16 }}>
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
           <span style={eyebrow}>{currentEvent ? currentEvent.name : "Sin evento seleccionado"}</span>
