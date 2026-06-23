@@ -5,7 +5,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fmtDeadline } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText } from "@/lib/dashboard/utils";
 
 const IMG = (name) => `/template/plantilla_v1/${name}`;
 
@@ -93,7 +93,7 @@ export function Plantilla({ event, guest, rsvp }) {
 
   const coverUrl = event?.cover_url || IMG("anillo-de-compromiso-44-1.png");
   const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean) : [];
-  const rsvpDeadline = fmtDeadline(event?.rsvp_deadline);
+  const rsvpDeadline = rsvpDeadlineText(event, "Confirma antes del");
 
   const guestName = (guest?.name || "").trim() || "Invitación especial";
   const maxGuests = Math.max(1, Number(guest?.max_guests) || 1);
@@ -311,7 +311,7 @@ export function Plantilla({ event, guest, rsvp }) {
           <img src={IMG("flores-derecha.svg")} alt="" className="absolute -right-1 top-2 w-12 opacity-80 pointer-events-none" />
           <div className={pinyonHead}>Confirma tu asistencia</div>
           {rsvpDeadline && (
-            <div className="font-cinzel text-black text-[11px] tracking-[2px] mt-2">Confirma antes del {rsvpDeadline}</div>
+            <div className="font-cinzel text-black text-[11px] tracking-[2px] mt-2">{rsvpDeadline}</div>
           )}
           <div className={`${cinzelCaps} mt-3`}>CUENTAS CON {maxGuests} ENTRADA{maxGuests !== 1 ? "S" : ""}</div>
 

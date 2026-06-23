@@ -9,7 +9,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fmtDeadline } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText } from "@/lib/dashboard/utils";
 
 const ASSET = (n) => `/template/plantilla_olivos/${n}`;
 
@@ -162,7 +162,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const showGifts = event?.show_gifts !== false && (!!giftUrl1 || !!giftUrl2);
   const showBank = event?.show_bank !== false && !!bankAccount;
 
-  const rsvpDeadline = fmtDeadline(event?.rsvp_deadline);
+  const rsvpDeadline = rsvpDeadlineText(event, "Confírmanos tu asistencia antes del");
   const coverUrl = event?.cover_url || ASSET("portada.jpeg");
   const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean).slice(0, 6) : [];
 
@@ -458,9 +458,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                 {!confirmed ? (
                   <>
                     <div style={{ textAlign: "center", fontFamily: MONO, fontSize: 12.5, color: T.soft, lineHeight: 1.75, marginBottom: 24 }}>
-                      {rsvpDeadline
-                        ? <>Confírmanos tu asistencia antes del <strong style={{ color: T.navy }}>{rsvpDeadline}</strong></>
-                        : "Confírmanos tu asistencia, por favor."}
+                      {rsvpDeadline || "Confírmanos tu asistencia, por favor."}
                     </div>
                     <div style={{ fontFamily: SERIF, fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: T.soft, fontWeight: 600, marginBottom: 11, textAlign: "center" }}>¿Asistirás?</div>
                     <div style={{ display: "flex", gap: 12, marginBottom: yes ? 18 : 26 }}>

@@ -265,6 +265,7 @@ export function useDashboard() {
           show_bank: form.showBank,
           show_table: form.showTable,
           rsvp_deadline: form.rsvpDeadline || null,
+          rsvp_deadline_label: form.rsvpDeadlineLabel?.trim() || null,
           template: form.template || null,
           cover_url: form.coverUrl?.trim() || null,
           gallery_urls: Array.isArray(form.galleryUrls)

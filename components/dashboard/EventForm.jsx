@@ -34,6 +34,7 @@ const EMPTY = {
   showBank: true,
   showTable: false,
   rsvpDeadline: "",
+  rsvpDeadlineLabel: "",
   template: DEFAULT_TEMPLATE,
   coverUrl: "",
   galleryUrls: [],
@@ -71,6 +72,7 @@ export function eventToForm(ev) {
     showBank: ev.show_bank !== false,
     showTable: ev.show_table === true,
     rsvpDeadline: ev.rsvp_deadline ?? "",
+    rsvpDeadlineLabel: ev.rsvp_deadline_label ?? "",
     template: ev.template || DEFAULT_TEMPLATE,
     coverUrl: ev.cover_url ?? "",
     galleryUrls: Array.isArray(ev.gallery_urls) ? ev.gallery_urls.filter(Boolean) : [],
@@ -176,6 +178,19 @@ export default function EventForm({
               <div>
                 <Label>Fecha límite para confirmar (RSVP)</Label>
                 <Input type="date" value={form.rsvpDeadline} onChange={set("rsvpDeadline")} />
+              </div>
+
+              <div>
+                <Label>Texto del límite (opcional)</Label>
+                <Input
+                  value={form.rsvpDeadlineLabel}
+                  onChange={set("rsvpDeadlineLabel")}
+                  placeholder="Confirma tu asistencia antes del"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Cambia la frase o ponla en otro idioma. Usa <code className="font-mono">{"{fecha}"}</code> para
+                  colocar la fecha donde quieras; si no, se añade al final.
+                </p>
               </div>
 
               {/* ── REGALOS Y BANCO (consolidado, fácil de acceder) ── */}

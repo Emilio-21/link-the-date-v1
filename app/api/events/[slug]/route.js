@@ -28,6 +28,7 @@ export async function GET(_req, { params }) {
         gift_label_1, gift_label_2,
         bank_name,
         show_dress_code, show_kids_policy, show_gifts, show_bank,
+        rsvp_deadline, rsvp_deadline_label,
         created_at
       `)
       .eq("slug", slug)

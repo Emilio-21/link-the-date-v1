@@ -11,6 +11,7 @@ ALTER TABLE events
   ADD COLUMN IF NOT EXISTS gallery_urls  TEXT[] NOT NULL DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS gifts_message TEXT,
   ADD COLUMN IF NOT EXISTS rsvp_deadline DATE,
+  ADD COLUMN IF NOT EXISTS rsvp_deadline_label TEXT,
   ADD COLUMN IF NOT EXISTS show_table    BOOLEAN NOT NULL DEFAULT false;
 
 -- Asignación de mesa por invitado (se puede llenar después de enviar la invitación)
