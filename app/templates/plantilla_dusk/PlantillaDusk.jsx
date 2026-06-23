@@ -21,7 +21,7 @@
    ──────────────────────────────────────────────────────────────────────── */
 
 import { useEffect, useState } from "react";
-import { rsvpDeadlineText } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf } from "@/lib/dashboard/utils";
 
 /* ── Theme tokens — warm autumn palette ─────────────────────────────── */
 const T = {
@@ -43,10 +43,10 @@ const CAPS    = '"Cinzel", "Cormorant SC", serif';
 const BODY    = '"EB Garamond", "Cormorant Garamond", serif';
 
 /* ── Date helpers (English month) ──────────────────────────────────── */
-function monthEN(s)  { try { return new Date(`${s}T00:00:00`).toLocaleDateString("en-US", { month: "long" }); } catch { return ""; } }
+function monthEN(s, locale = "en-US")  { try { return new Date(`${s}T00:00:00`).toLocaleDateString(locale, { month: "long" }); } catch { return ""; } }
 function dayNum(s)   { try { return String(new Date(`${s}T00:00:00`).getDate()); } catch { return ""; } }
 function yearNum(s)  { try { return String(new Date(`${s}T00:00:00`).getFullYear()); } catch { return ""; } }
-function weekdayEN(s){ try { return new Date(`${s}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(); } catch { return ""; } }
+function weekdayEN(s, locale = "en-US"){ try { return new Date(`${s}T00:00:00`).toLocaleDateString(locale, { weekday: "short" }).toUpperCase(); } catch { return ""; } }
 
 /* ── Countdown ─────────────────────────────────────────────────────── */
 function useCountdown(targetISO) {
@@ -156,7 +156,11 @@ export function PlantillaDusk({ event, guest, rsvp }) {
   const kidsPolicyText = event?.kids_policy_text || "Adults only celebration";
   const bankAccount    = event?.bank_account     || null;
   const bankName       = event?.bank_name        || null;
-  const rsvpDeadline   = rsvpDeadlineText(event, "Confirmar antes del");
+  const locale = localeOf(event, "en-US");
+  const rsvpDeadline   = rsvpDeadlineText(event, {
+    es: "Confirmar antes del",
+    en: "Please reply before",
+  });
   const giftsMessage   = event?.gifts_message    || null;
   const giftUrl1       = event?.gift_url_1        || null;
   const giftUrl2       = event?.gift_url_2        || null;
@@ -313,9 +317,9 @@ export function PlantillaDusk({ event, guest, rsvp }) {
           <div style={{ display: "inline-flex", alignItems: "baseline", gap: 14,
                         padding: "14px 22px",
                         borderTop: `1px solid ${T.ember}`, borderBottom: `1px solid ${T.ember}` }}>
-            <Caps size={11} tracking={4} color={T.ember}>{weekdayEN(eventDate) || "FRI"}</Caps>
+            <Caps size={11} tracking={4} color={T.ember}>{weekdayEN(eventDate, locale) || "FRI"}</Caps>
             <div style={{ fontFamily: DISPLAY, fontSize: 42, fontStyle: "italic", color: T.ink, lineHeight: 1 }}>
-              {monthEN(eventDate) || "October"} <span style={{ fontStyle: "normal" }}>{dayNum(eventDate)}</span>
+              {monthEN(eventDate, locale) || "October"} <span style={{ fontStyle: "normal" }}>{dayNum(eventDate)}</span>
             </div>
             <Caps size={11} tracking={4} color={T.ember}>{yearNum(eventDate)}</Caps>
           </div>
@@ -577,7 +581,7 @@ export function PlantillaDusk({ event, guest, rsvp }) {
           </div>
           <div style={{ marginTop: 12 }}>
             <Caps size={8} tracking={5} color={T.inkSoft}>
-              {dayNum(eventDate) || "23"} · {monthEN(eventDate)?.[0]?.toUpperCase()}{monthEN(eventDate)?.slice(1, 3).toLowerCase()} · {yearNum(eventDate) || "2026"}
+              {dayNum(eventDate) || "23"} · {monthEN(eventDate, locale)?.[0]?.toUpperCase()}{monthEN(eventDate, locale)?.slice(1, 3).toLowerCase()} · {yearNum(eventDate) || "2026"}
             </Caps>
           </div>
         </div>

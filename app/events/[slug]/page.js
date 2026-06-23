@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "../../../lib/supabase/client";
 
-function formatDate(dateStr) {
+function formatDate(dateStr, locale = "es-MX") {
   if (!dateStr) return "";
   // event_date puede venir como "2026-06-14" (DATE)
   // lo convertimos a algo legible
   const d = new Date(dateStr + "T00:00:00");
   if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("es-MX", {
+  return d.toLocaleDateString(locale, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -191,7 +191,7 @@ export default function EventBySlugPage() {
             <h1 className="text-4xl font-semibold">{event.name}</h1>
 
             <p className="text-base opacity-70">
-              {formatDate(event.event_date)}
+              {formatDate(event.event_date, event.language === "en" ? "en-US" : "es-MX")}
               {event.location ? ` · ${event.location}` : ""}
             </p>
           </div>

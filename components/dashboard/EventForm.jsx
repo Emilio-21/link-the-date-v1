@@ -35,6 +35,7 @@ const EMPTY = {
   showTable: false,
   rsvpDeadline: "",
   rsvpDeadlineLabel: "",
+  language: "es",
   template: DEFAULT_TEMPLATE,
   coverUrl: "",
   galleryUrls: [],
@@ -73,6 +74,7 @@ export function eventToForm(ev) {
     showTable: ev.show_table === true,
     rsvpDeadline: ev.rsvp_deadline ?? "",
     rsvpDeadlineLabel: ev.rsvp_deadline_label ?? "",
+    language: ev.language || "es",
     template: ev.template || DEFAULT_TEMPLATE,
     coverUrl: ev.cover_url ?? "",
     galleryUrls: Array.isArray(ev.gallery_urls) ? ev.gallery_urls.filter(Boolean) : [],
@@ -173,6 +175,21 @@ export default function EventForm({
                   onChange={set("mainMessage")}
                   placeholder="Nos encantaría contar con tu presencia..."
                 />
+              </div>
+
+              <div>
+                <Label>Idioma de la invitación</Label>
+                <select
+                  value={form.language}
+                  onChange={set("language")}
+                  className="w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm text-stone-800 outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                >
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                </select>
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Define el idioma en que se muestran las fechas (ej. “1 de agosto de 2026” vs “August 1, 2026”).
+                </p>
               </div>
 
               <div>

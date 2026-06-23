@@ -5,12 +5,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rsvpDeadlineText } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf } from "@/lib/dashboard/utils";
 
 const IMG = (name) => `/template/plantilla_v1/${name}`;
 
 // ── helpers de fecha ───────────────────────────────────────────────────────
-function monthES(s) { try { return new Date(`${s}T00:00:00`).toLocaleDateString("es-MX", { month: "long" }); } catch { return ""; } }
+function monthES(s, locale = "es-MX") { try { return new Date(`${s}T00:00:00`).toLocaleDateString(locale, { month: "long" }); } catch { return ""; } }
 function dayNum(s) { try { return String(new Date(`${s}T00:00:00`).getDate()); } catch { return ""; } }
 function yearNum(s) { try { return String(new Date(`${s}T00:00:00`).getFullYear()); } catch { return ""; } }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
@@ -93,7 +93,11 @@ export function Plantilla({ event, guest, rsvp }) {
 
   const coverUrl = event?.cover_url || IMG("anillo-de-compromiso-44-1.png");
   const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean) : [];
-  const rsvpDeadline = rsvpDeadlineText(event, "Confirma antes del");
+  const locale = localeOf(event);
+  const rsvpDeadline = rsvpDeadlineText(event, {
+    es: "Confirma antes del",
+    en: "Kindly reply before",
+  });
 
   const guestName = (guest?.name || "").trim() || "Invitación especial";
   const maxGuests = Math.max(1, Number(guest?.max_guests) || 1);
@@ -209,7 +213,7 @@ export function Plantilla({ event, guest, rsvp }) {
           <section className="relative z-10 px-6 pt-6 pb-4">
             <div className="flex items-center justify-center gap-6">
               <div className="text-center">
-                <div className="font-pinyon text-black text-5xl leading-none">{cap(monthES(eventDate)) || "Mes"}</div>
+                <div className="font-pinyon text-black text-5xl leading-none">{cap(monthES(eventDate, locale)) || "Mes"}</div>
                 <div className="font-cinzel text-black text-4xl mt-1">{dayNum(eventDate) || "--"}</div>
                 <div className="font-cinzel text-black text-base tracking-[8px] mt-1">{yearNum(eventDate)}</div>
               </div>

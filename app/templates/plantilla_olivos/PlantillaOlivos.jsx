@@ -9,7 +9,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rsvpDeadlineText } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf } from "@/lib/dashboard/utils";
 
 const ASSET = (n) => `/template/plantilla_olivos/${n}`;
 
@@ -48,8 +48,8 @@ function splitCouple(name) {
   if (m.length >= 2) return [m[0].trim(), m.slice(1).join(" ").trim()];
   return [raw, ""];
 }
-function monthES(d) {
-  try { return d.toLocaleDateString("es-MX", { month: "long" }); } catch { return ""; }
+function monthES(d, locale = "es-MX") {
+  try { return d.toLocaleDateString(locale, { month: "long" }); } catch { return ""; }
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
@@ -122,11 +122,12 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const eventISO = event?.event_datetime || (eventDate ? `${eventDate}T17:00:00` : null);
   const dateObj = eventDate ? new Date(`${eventDate}T00:00:00`) : null;
 
+  const locale = localeOf(event);
   const dateText = dateObj
-    ? `${dateObj.getDate()} · ${cap(monthES(dateObj))} · ${dateObj.getFullYear()}`
+    ? `${dateObj.getDate()} · ${cap(monthES(dateObj, locale))} · ${dateObj.getFullYear()}`
     : (event?.date_text || "");
   const longDate = dateObj
-    ? `${cap(dateObj.toLocaleDateString("es-MX", { weekday: "long" }))} · ${dateObj.getDate()} de ${cap(monthES(dateObj))}`
+    ? `${cap(dateObj.toLocaleDateString(locale, { weekday: "long" }))} · ${dateObj.getDate()}${locale === "en-US" ? " " : " de "}${cap(monthES(dateObj, locale))}`
     : "";
 
   const venueName = event?.venue_name || "";
@@ -162,7 +163,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const showGifts = event?.show_gifts !== false && (!!giftUrl1 || !!giftUrl2);
   const showBank = event?.show_bank !== false && !!bankAccount;
 
-  const rsvpDeadline = rsvpDeadlineText(event, "Confírmanos tu asistencia antes del");
+  const rsvpDeadline = rsvpDeadlineText(event, {
+    es: "Confírmanos tu asistencia antes del",
+    en: "Please confirm your attendance before",
+  });
   const coverUrl = event?.cover_url || ASSET("portada.jpeg");
   const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean).slice(0, 6) : [];
 
