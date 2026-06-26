@@ -109,9 +109,9 @@ function Divider() {
 
 function SectionTitle({ script, caps, scriptColor = T.sage, scriptFont = SCRIPT, capsFont = SERIF }) {
   return (
-    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 10, marginBottom: 16 }}>
-      <span style={{ fontFamily: scriptFont, fontSize: 46, color: scriptColor, lineHeight: 1, paddingBottom: 2 }}>{script}</span>
-      <span style={{ fontFamily: capsFont, fontWeight: 700, fontSize: 28, letterSpacing: "0.14em", textTransform: "uppercase", color: T.navy }}>{caps}</span>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "center", gap: 10, marginBottom: 16, maxWidth: "100%" }}>
+      <span style={{ fontFamily: scriptFont, fontSize: 46, color: scriptColor, lineHeight: 1, paddingBottom: 2, overflowWrap: "anywhere", maxWidth: "100%" }}>{script}</span>
+      <span style={{ fontFamily: capsFont, fontWeight: 700, fontSize: 28, letterSpacing: "0.14em", textTransform: "uppercase", color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{caps}</span>
     </div>
   );
 }
@@ -267,11 +267,11 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", width: 150, top: 30, left: -58, opacity: 0.6, transform: "rotate(-18deg)", pointerEvents: "none", zIndex: 0 }} />
             <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", width: 150, bottom: -30, right: -56, opacity: 0.5, transform: "rotate(14deg) scaleX(-1)", pointerEvents: "none", zIndex: 0 }} />
             <div style={{ position: "relative", zIndex: 1, fontFamily: ff("cover_intro"), fontWeight: 500, fontSize: 11, letterSpacing: "0.34em", textTransform: "uppercase", color: "#6F6A58", lineHeight: 1.7, marginBottom: 14, whiteSpace: "pre-line" }}>{tx("cover_intro")}</div>
-            <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 62, whiteSpace: "nowrap", lineHeight: 1.1, paddingBottom: 4, color: T.navy }}>{partnerA || "Los novios"}</div>
+            <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 62, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerA || "Los novios"}</div>
             {partnerB && (
               <>
                 <div style={{ position: "relative", zIndex: 1, fontFamily: SCRIPT, fontSize: 34, color: T.gold, lineHeight: 0.7, margin: "2px 0" }}>&amp;</div>
-                <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 62, whiteSpace: "nowrap", lineHeight: 1.1, paddingBottom: 4, color: T.navy }}>{partnerB}</div>
+                <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 62, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerB}</div>
               </>
             )}
             <Divider />

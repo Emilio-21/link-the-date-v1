@@ -47,25 +47,25 @@ export const OLIVOS_SLOTS = [
   { key: "countdown_label",  section: "Cuenta regresiva", label: "Subtítulo", default: "Cuenta regresiva", font: "playfair" },
 
   // ── Celebración / ubicación ──────────────────────────────────────────
-  { key: "venue_script", section: "Celebración", label: "Título — palabra caligráfica", default: "La", font: "pinyon" },
-  { key: "venue_title",  section: "Celebración", label: "Título — palabra en mayúsculas", default: "Celebración", font: "playfair" },
+  { key: "venue_script", section: "Celebración", label: "Título · 1ª palabra (cursiva, corta)", default: "La", font: "pinyon" },
+  { key: "venue_title",  section: "Celebración", label: "Título · 2ª palabra (mayúsculas)", default: "Celebración", font: "playfair" },
   { key: "venue_text",   section: "Celebración", label: "Texto de la sección", default: "La ceremonia y la fiesta serán en el mismo lugar. Aquí abajo les compartimos la ubicación.", font: "specialElite", multiline: true },
   { key: "venue_button", section: "Celebración", label: "Texto del botón de mapa", default: "Cómo llegar", font: "playfair" },
 
   // ── Vestimenta ───────────────────────────────────────────────────────
-  { key: "dress_script", section: "Vestimenta", label: "Título — palabra caligráfica", default: "¿Qué", font: "pinyon" },
-  { key: "dress_title",  section: "Vestimenta", label: "Título — palabra en mayúsculas", default: "me pongo?", font: "playfair" },
+  { key: "dress_script", section: "Vestimenta", label: "Título · 1ª palabra (cursiva, corta)", default: "¿Qué", font: "pinyon" },
+  { key: "dress_title",  section: "Vestimenta", label: "Título · 2ª palabra (mayúsculas)", default: "me pongo?", font: "playfair" },
   { key: "dress_text",   section: "Vestimenta", label: "Texto de la sección", default: "Inspírate en nuestra paleta de tonos suaves. Reservamos el blanco para la novia.", font: "specialElite", multiline: true },
   { key: "dress_value",  section: "Vestimenta", label: "Código de vestimenta (fuente)", font: "playfair", textEditable: false },
 
   // ── Mesa de regalos ──────────────────────────────────────────────────
-  { key: "gifts_script", section: "Mesa de regalos", label: "Título — palabra caligráfica", default: "Mesa de", font: "pinyon" },
-  { key: "gifts_title",  section: "Mesa de regalos", label: "Título — palabra en mayúsculas", default: "Regalos", font: "playfair" },
+  { key: "gifts_script", section: "Mesa de regalos", label: "Título · 1ª palabra (cursiva, corta)", default: "Mesa de", font: "pinyon" },
+  { key: "gifts_title",  section: "Mesa de regalos", label: "Título · 2ª palabra (mayúsculas)", default: "Regalos", font: "playfair" },
   { key: "gifts_link",   section: "Mesa de regalos", label: "Texto del enlace de cada mesa", default: "Ver lista →", font: "playfair" },
 
   // ── Galería ──────────────────────────────────────────────────────────
-  { key: "gallery_script", section: "Galería", label: "Título — palabra caligráfica", default: "Nuestra", font: "pinyon" },
-  { key: "gallery_title",  section: "Galería", label: "Título — palabra en mayúsculas", default: "Historia", font: "playfair" },
+  { key: "gallery_script", section: "Galería", label: "Título · 1ª palabra (cursiva, corta)", default: "Nuestra", font: "pinyon" },
+  { key: "gallery_title",  section: "Galería", label: "Título · 2ª palabra (mayúsculas)", default: "Historia", font: "playfair" },
 
   // ── RSVP ─────────────────────────────────────────────────────────────
   { key: "rsvp_title",    section: "Confirmación (RSVP)", label: "Título caligráfico", default: "¿Nos acompañas?", font: "pinyon" },
