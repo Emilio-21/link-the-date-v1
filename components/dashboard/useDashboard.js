@@ -272,6 +272,7 @@ export function useDashboard() {
           gallery_urls: Array.isArray(form.galleryUrls)
             ? form.galleryUrls.map((u) => (u || "").trim()).filter(Boolean)
             : [],
+          customization: form.customization && typeof form.customization === "object" ? form.customization : {},
         })
         .eq("id", eventId)
         .select(EVENT_COLUMNS)

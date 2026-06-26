@@ -5,8 +5,92 @@
 import { useEffect, useState } from "react";
 import { Btn, Ico, Input, Label, Switch, Textarea } from "./primitives";
 import { isoToDateTimeLocal } from "@/lib/dashboard/utils";
-import { DEFAULT_TEMPLATE, getGallerySize, listTemplates } from "@/lib/templates";
+import {
+  DEFAULT_TEMPLATE,
+  getGallerySize,
+  getTemplateContentSlots,
+  getTemplateContentSections,
+  listTemplates,
+} from "@/lib/templates";
+import { fontOptions } from "@/lib/templates/fonts";
 import ImageUploader from "./ImageUploader";
+
+const FONT_OPTIONS = fontOptions();
+
+// Editor de textos y tipografía por sección (template-aware).
+// Lee/escribe en form.customization = { [slotKey]: { text, font } }.
+function ContentEditor({ templateSlug, customization, onChange }) {
+  const slots = getTemplateContentSlots(templateSlug);
+  if (!slots.length) return null;
+  const sections = getTemplateContentSections(templateSlug);
+
+  const cz = customization && typeof customization === "object" ? customization : {};
+  const setSlot = (key, field, value) =>
+    onChange({ ...cz, [key]: { ...(cz[key] || {}), [field]: value } });
+
+  return (
+    <div className="sm:col-span-2 rounded-xl border border-stone-200 bg-stone-50 p-4 mt-1">
+      <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 mb-1">
+        Textos y tipografía
+      </p>
+      <p className="text-[11px] text-stone-400 mb-3">
+        Cambia lo que dice cada texto y la fuente con la que se muestra. Deja el texto vacío para usar el predeterminado.
+      </p>
+
+      {sections.map((section) => {
+        const items = slots.filter((s) => s.section === section);
+        if (!items.length) return null;
+        return (
+          <details key={section} className="group mb-2 rounded-xl border border-stone-200 bg-white">
+            <summary className="cursor-pointer list-none px-3.5 py-2.5 text-sm font-bold text-stone-700 flex items-center justify-between">
+              {section}
+              <span className="text-stone-300 group-open:rotate-180 transition">▾</span>
+            </summary>
+            <div className="px-3.5 pb-3.5 pt-1 grid gap-3">
+              {items.map((slot) => {
+                const cur = cz[slot.key] || {};
+                const textEditable = slot.textEditable !== false;
+                const fontVal = cur.font || slot.font;
+                return (
+                  <div key={slot.key} className="grid gap-1.5">
+                    <Label>{slot.label}</Label>
+                    {textEditable && (
+                      slot.multiline ? (
+                        <Textarea
+                          rows={2}
+                          value={cur.text ?? ""}
+                          onChange={(e) => setSlot(slot.key, "text", e.target.value)}
+                          placeholder={slot.default}
+                        />
+                      ) : (
+                        <Input
+                          value={cur.text ?? ""}
+                          onChange={(e) => setSlot(slot.key, "text", e.target.value)}
+                          placeholder={slot.default}
+                        />
+                      )
+                    )}
+                    <select
+                      value={fontVal}
+                      onChange={(e) => setSlot(slot.key, "font", e.target.value)}
+                      className="w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm text-stone-800 outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                    >
+                      {FONT_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        );
+      })}
+    </div>
+  );
+}
 
 export const GALLERY_SIZE = 6; // máximo soportado por cualquier plantilla
 
@@ -39,6 +123,7 @@ const EMPTY = {
   template: DEFAULT_TEMPLATE,
   coverUrl: "",
   galleryUrls: [],
+  customization: {}, // overrides de texto/fuente por sección: { [slotKey]: { text, font } }
 };
 
 function padGallery(arr, size) {
@@ -78,6 +163,7 @@ export function eventToForm(ev) {
     template: ev.template || DEFAULT_TEMPLATE,
     coverUrl: ev.cover_url ?? "",
     galleryUrls: Array.isArray(ev.gallery_urls) ? ev.gallery_urls.filter(Boolean) : [],
+    customization: ev.customization && typeof ev.customization === "object" ? ev.customization : {},
   };
 }
 
@@ -311,6 +397,15 @@ export default function EventForm({
               </div>
             </div>
           </div>
+        )}
+
+        {/* ── TEXTOS Y TIPOGRAFÍA POR SECCIÓN ─────────────────────────── */}
+        {isEdit && (
+          <ContentEditor
+            templateSlug={form.template}
+            customization={form.customization}
+            onChange={(next) => setForm((f) => ({ ...f, customization: next }))}
+          />
         )}
 
         {/* ── FOTOS (hasta abajo) ─────────────────────────────────────── */}
