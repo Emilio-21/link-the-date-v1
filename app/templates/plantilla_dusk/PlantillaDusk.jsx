@@ -21,7 +21,7 @@
    ──────────────────────────────────────────────────────────────────────── */
 
 import { useEffect, useState } from "react";
-import { rsvpDeadlineText, localeOf } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf, wallClockISO, eventTimeText } from "@/lib/dashboard/utils";
 
 /* ── Theme tokens — warm autumn palette ─────────────────────────────── */
 const T = {
@@ -121,7 +121,7 @@ export function PlantillaDusk({ event, guest, rsvp }) {
   /* event fields — same keys as Plantilla.jsx, with English defaults */
   const coupleName = event?.couple_name || event?.couple_top || "The Couple";
   const eventDate  = event?.event_date  || event?.date       || "";
-  const eventISO   = event?.event_datetime || (eventDate ? `${eventDate}T17:00:00` : null);
+  const eventISO   = wallClockISO(event); // hora de pared fija (no se ajusta a zonas horarias)
   const venueName  = event?.venue_name  || event?.location_name || "";
   const city       = event?.city        || event?.location || "";
   const mapUrl     = event?.map_url     || event?.location_url || null;
@@ -131,19 +131,8 @@ export function PlantillaDusk({ event, guest, rsvp }) {
     : [];
   const tableLabel = event?.show_table && guest?.table_assignment ? guest.table_assignment : null;
 
-  /* time extraction (mirrors Plantilla.jsx) */
-  const rawTime = (() => {
-    if (!eventISO) return { time: "", ampm: "" };
-    try {
-      const d = new Date(eventISO);
-      let h = d.getHours();
-      const ampm = h >= 12 ? "pm" : "am";
-      h = h % 12 || 12;
-      const m = d.getMinutes();
-      const time = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
-      return { time, ampm };
-    } catch { return { time: "", ampm: "" }; }
-  })();
+  /* hora de pared fija (sin conversión de zona horaria) */
+  const rawTime = eventTimeText(event);
   const time = event?.time || rawTime.time;
   const ampm = event?.ampm || rawTime.ampm;
 

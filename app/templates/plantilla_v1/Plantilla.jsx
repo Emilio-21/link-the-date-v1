@@ -5,7 +5,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rsvpDeadlineText, localeOf } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf, wallClockISO, eventTimeText } from "@/lib/dashboard/utils";
 
 const IMG = (name) => `/template/plantilla_v1/${name}`;
 
@@ -14,17 +14,6 @@ function monthES(s, locale = "es-MX") { try { return new Date(`${s}T00:00:00`).t
 function dayNum(s) { try { return String(new Date(`${s}T00:00:00`).getDate()); } catch { return ""; } }
 function yearNum(s) { try { return String(new Date(`${s}T00:00:00`).getFullYear()); } catch { return ""; } }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
-function extractTime(iso) {
-  if (!iso) return { time: "", ampm: "" };
-  try {
-    const d = new Date(iso);
-    let h = d.getHours();
-    const ampm = h >= 12 ? "pm" : "am";
-    h = h % 12 || 12;
-    const m = d.getMinutes();
-    return { time: m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`, ampm };
-  } catch { return { time: "", ampm: "" }; }
-}
 
 // ── countdown (numeros grandes + labels) ───────────────────────────────────
 function Countdown({ iso }) {
@@ -66,8 +55,8 @@ export function Plantilla({ event, guest, rsvp }) {
   // ── datos ──────────────────────────────────────────────────────────────
   const coupleName = event?.couple_name || "Los novios";
   const eventDate = event?.event_date || "";
-  const eventISO = event?.event_datetime || (eventDate ? `${eventDate}T17:00:00` : null);
-  const { time, ampm } = extractTime(event?.event_datetime);
+  const eventISO = wallClockISO(event); // hora de pared fija (no se ajusta a zonas horarias)
+  const { time, ampm } = eventTimeText(event);
   const venueName = event?.venue_name || "";
   const city = event?.location || "";
   const mapUrl = event?.location_url || null;

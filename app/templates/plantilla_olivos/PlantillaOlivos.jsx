@@ -9,7 +9,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rsvpDeadlineText, localeOf } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf, wallClockISO } from "@/lib/dashboard/utils";
 import { resolveFont, googleFontsHref } from "@/lib/templates/fonts";
 import { OLIVOS_SLOT_MAP } from "./content";
 
@@ -138,7 +138,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   // ── datos ──────────────────────────────────────────────────────────────
   const [partnerA, partnerB] = splitCouple(event?.couple_name || "");
   const eventDate = event?.event_date || "";
-  const eventISO = event?.event_datetime || (eventDate ? `${eventDate}T17:00:00` : null);
+  const eventISO = wallClockISO(event); // hora de pared fija (no se ajusta a zonas horarias)
   const dateObj = eventDate ? new Date(`${eventDate}T00:00:00`) : null;
 
   const locale = localeOf(event);
