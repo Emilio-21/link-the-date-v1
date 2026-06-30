@@ -26,7 +26,7 @@ export async function GET(_req, { params }) {
         couple_name, main_message,
         dress_code_text, kids_policy_text,
         gift_label_1, gift_label_2,
-        bank_name,
+        bank_name, bank_holder,
         show_dress_code, show_kids_policy, show_gifts, show_bank, show_table,
         gifts_message, cover_url, gallery_urls,
         rsvp_deadline, rsvp_deadline_label, language, customization,

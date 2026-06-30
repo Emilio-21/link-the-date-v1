@@ -9,7 +9,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rsvpDeadlineText, localeOf, wallClockISO } from "@/lib/dashboard/utils";
+import { rsvpDeadlineText, localeOf, wallClockISO, eventTimeText } from "@/lib/dashboard/utils";
 import { resolveFont, googleFontsHref } from "@/lib/templates/fonts";
 import { OLIVOS_SLOT_MAP } from "./content";
 
@@ -148,6 +148,11 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const longDate = dateObj
     ? `${cap(dateObj.toLocaleDateString(locale, { weekday: "long" }))} · ${dateObj.getDate()}${locale === "en-US" ? " " : " de "}${cap(monthES(dateObj, locale))}`
     : "";
+  // Hora de pared fija. "3:30 pm" → "3:30 p.m." en español.
+  const { time: evTime, ampm: evAmpm } = eventTimeText(event);
+  const timeText = evTime
+    ? `${evTime} ${locale === "en-US" ? evAmpm : evAmpm === "pm" ? "p.m." : "a.m."}`
+    : "";
 
   const venueName = event?.venue_name || "";
   const cityLine = event?.location || "";
@@ -160,8 +165,9 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
   const guestName = (guest?.name || "").trim() || "Invitado especial";
   const maxGuests = Math.max(1, Number(guest?.max_guests) || 1);
-  const passesWord = maxGuests === 1 ? "1 pase reservado" : `${maxGuests} pases reservados`;
   const tableLabel = event?.show_table && guest?.table_assignment ? guest.table_assignment : null;
+
+  const bankHolder = event?.bank_holder || null;
 
   const mainMessage = event?.main_message
     || "Será un honor contar con tu presencia para celebrar el comienzo de nuestra nueva vida juntos. Hemos reservado un lugar especial para ti.";
@@ -267,15 +273,16 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", width: 150, top: 30, left: -58, opacity: 0.6, transform: "rotate(-18deg)", pointerEvents: "none", zIndex: 0 }} />
             <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", width: 150, bottom: -30, right: -56, opacity: 0.5, transform: "rotate(14deg) scaleX(-1)", pointerEvents: "none", zIndex: 0 }} />
             <div style={{ position: "relative", zIndex: 1, fontFamily: ff("cover_intro"), fontWeight: 500, fontSize: 11, letterSpacing: "0.34em", textTransform: "uppercase", color: "#6F6A58", lineHeight: 1.7, marginBottom: 14, whiteSpace: "pre-line" }}>{tx("cover_intro")}</div>
-            <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 62, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerA || "Los novios"}</div>
+            <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 80, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerA || "Los novios"}</div>
             {partnerB && (
               <>
                 <div style={{ position: "relative", zIndex: 1, fontFamily: SCRIPT, fontSize: 34, color: T.gold, lineHeight: 0.7, margin: "2px 0" }}>&amp;</div>
-                <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 62, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerB}</div>
+                <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 80, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerB}</div>
               </>
             )}
             <Divider />
             {dateText && <div style={{ fontFamily: ff("cover_date"), fontWeight: 600, fontSize: 17, letterSpacing: "0.3em", textTransform: "uppercase", color: T.blue, marginTop: 18 }}>{dateText}</div>}
+            {timeText && <div style={{ fontFamily: ff("cover_time"), fontWeight: 600, fontSize: 14, letterSpacing: "0.24em", textTransform: "uppercase", color: T.blue, marginTop: 7 }}>{timeText}</div>}
             {(venueName || cityLine) && (
               <div style={{ fontFamily: ff("cover_venue"), fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: T.soft, marginTop: 11, lineHeight: 1.7 }}>
                 {[venueName, cityLine].filter(Boolean).join(" · ")}
@@ -292,11 +299,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <div style={{ position: "relative", padding: "42px 30px 40px", textAlign: "center" }}>
               <div style={{ fontFamily: ff("greeting_intro"), fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: T.soft, marginBottom: 18 }}>{tx("greeting_intro")}</div>
               <div style={{ fontFamily: ff("guest_name"), fontSize: 54, lineHeight: 1.12, paddingBottom: 4, color: T.navy }}>{guestName}</div>
+              <p style={{ fontFamily: ff("passes_text"), fontSize: 11.5, letterSpacing: "0.1em", lineHeight: 1.7, color: T.goldDark, margin: "16px auto 0", maxWidth: 280, textWrap: "pretty", whiteSpace: "pre-line" }}>
+                {tx("passes_text").replace(/\{n\}/g, maxGuests)}
+              </p>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 14 }}>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", border: "1px solid rgba(176,141,82,.4)", borderRadius: 40, background: "rgba(194,168,120,.1)" }}>
-                  <span style={{ width: 5, height: 5, background: T.gold, transform: "rotate(45deg)" }} />
-                  <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark }}>{passesWord}</span>
-                </div>
                 {tableLabel && (
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", border: "1px solid rgba(78,102,121,.35)", borderRadius: 40, background: "rgba(111,138,163,.1)" }}>
                     <span style={{ width: 5, height: 5, background: T.blue, transform: "rotate(45deg)" }} />
@@ -432,9 +438,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                     <div style={{ width: 46, height: 46, borderRadius: "50%", background: "rgba(176,141,82,.14)", border: "1px solid rgba(176,141,82,.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.goldDark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9 L12 4 L20 9" /><path d="M5 9 V19 H19 V9" /><line x1="3" y1="19" x2="21" y2="19" /><line x1="12" y1="12" x2="12" y2="16" /></svg>
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{bankName || "Transferencia"}</div>
-                      <div style={{ fontFamily: MONO, fontSize: 10, color: T.soft, marginTop: 4, letterSpacing: "0.04em" }}>{bankAccount}</div>
+                      {bankHolder && <div style={{ fontFamily: MONO, fontSize: 10, color: T.soft, marginTop: 4, letterSpacing: "0.04em" }}>Titular: {bankHolder}</div>}
+                      <div style={{ fontFamily: MONO, fontSize: 10, color: T.soft, marginTop: 3, letterSpacing: "0.04em", overflowWrap: "anywhere" }}>CLABE: {bankAccount}</div>
                     </div>
                     <span onClick={copyBank} style={{ fontFamily: SERIF, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{copied ? "✓ Copiado" : "Copiar"}</span>
                   </div>
@@ -516,10 +523,8 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                     </div>
                     <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 24, letterSpacing: "0.06em", textTransform: "uppercase", color: T.navy, lineHeight: 1.1 }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
                     <div style={{ fontFamily: SCRIPT, fontSize: 38, color: T.sage, margin: "4px 0 16px", lineHeight: 1.2, paddingBottom: 4 }}>con todo el corazón</div>
-                    <p style={{ fontFamily: MONO, fontSize: 12.5, lineHeight: 1.85, color: T.soft, margin: "0 0 22px", textWrap: "pretty" }}>
-                      {attending
-                        ? `Qué alegría, te esperamos${partySize > 1 ? ` a los ${partySize}` : ""} para celebrar juntos este día tan especial.`
-                        : "Lamentamos que no puedas acompañarnos. Te tendremos presente."}
+                    <p style={{ fontFamily: ff(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no"), fontSize: 12.5, lineHeight: 1.85, color: T.soft, margin: "0 0 22px", textWrap: "pretty", whiteSpace: "pre-line" }}>
+                      {tx(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no")}
                     </p>
                     <div onClick={() => setConfirmed(false)} style={{ display: "inline-flex", alignItems: "center", gap: 9, cursor: "pointer", fontFamily: SERIF, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: T.goldDark, fontWeight: 600, borderBottom: "1px solid rgba(138,109,62,.4)", paddingBottom: 3 }}>Modificar mi respuesta</div>
                   </div>

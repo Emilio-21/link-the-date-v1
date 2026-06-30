@@ -112,6 +112,7 @@ const EMPTY = {
   giftLabel2: "Amazon",
   giftsMessage: "",
   bankName: "",
+  bankHolder: "",
   showDressCode: true,
   showKidsPolicy: true,
   showGifts: true,
@@ -152,6 +153,7 @@ export function eventToForm(ev) {
     giftLabel2: ev.gift_label_2 ?? "Amazon",
     giftsMessage: ev.gifts_message ?? "",
     bankName: ev.bank_name ?? "",
+    bankHolder: ev.bank_holder ?? "",
     showDressCode: ev.show_dress_code !== false,
     showKidsPolicy: ev.show_kids_policy !== false,
     showGifts: ev.show_gifts !== false,
@@ -352,6 +354,10 @@ export default function EventForm({
                       <Input value={form.bankName} onChange={set("bankName")} placeholder="BANAMEX, BBVA, SPEI…" />
                     </div>
                     <div>
+                      <Label>Titular de la cuenta</Label>
+                      <Input value={form.bankHolder} onChange={set("bankHolder")} placeholder="Nombre del titular" />
+                    </div>
+                    <div className="sm:col-span-2">
                       <Label>Número de cuenta / CLABE</Label>
                       <Input value={form.bankAccount} onChange={set("bankAccount")} placeholder="CLABE / tarjeta" />
                     </div>

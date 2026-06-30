@@ -35,12 +35,14 @@ export const OLIVOS_SLOTS = [
   { key: "cover_intro",   section: "Portada", label: "Frase de invitación", default: "Tienen el honor de acompañarnos\nen la boda de", font: "playfair", multiline: true },
   { key: "couple_name",   section: "Portada", label: "Nombres de los novios (fuente)", font: "pinyon", textEditable: false },
   { key: "cover_date",    section: "Portada", label: "Fecha en portada (fuente)", font: "playfair", textEditable: false },
+  { key: "cover_time",    section: "Portada", label: "Hora en portada (fuente)", font: "playfair", textEditable: false },
   { key: "cover_venue",   section: "Portada", label: "Lugar en portada (fuente)", font: "specialElite", textEditable: false },
 
   // ── Saludo ───────────────────────────────────────────────────────────
   { key: "greeting_intro", section: "Saludo", label: "Antetítulo del saludo", default: "Con todo nuestro cariño,", font: "playfair" },
   { key: "guest_name",     section: "Saludo", label: "Nombre del invitado (fuente)", font: "pinyon", textEditable: false },
   { key: "main_message",   section: "Saludo", label: "Mensaje principal (fuente)", font: "specialElite", textEditable: false },
+  { key: "passes_text",    section: "Saludo", label: "Frase de lugares reservados (usa {n} para el número)", default: "Se han reservado {n} lugares especialmente para ustedes", font: "specialElite", multiline: true },
 
   // ── Cuenta regresiva ─────────────────────────────────────────────────
   { key: "countdown_script", section: "Cuenta regresiva", label: "Frase caligráfica", default: "Falta muy poco", font: "pinyon" },
@@ -74,6 +76,8 @@ export const OLIVOS_SLOTS = [
   { key: "rsvp_no",       section: "Confirmación (RSVP)", label: "Botón — no podré", default: "No podré", font: "playfair" },
   { key: "rsvp_count",    section: "Confirmación (RSVP)", label: "Pregunta — cuántos asistirán", default: "¿Cuántos asistirán?", font: "playfair" },
   { key: "rsvp_submit",   section: "Confirmación (RSVP)", label: "Botón — enviar confirmación", default: "Enviar confirmación", font: "playfair" },
+  { key: "rsvp_confirmed_yes", section: "Confirmación (RSVP)", label: "Mensaje al confirmar asistencia", default: "¡Qué alegría! Los esperamos para celebrar este día tan especial.", font: "specialElite", multiline: true },
+  { key: "rsvp_confirmed_no",  section: "Confirmación (RSVP)", label: "Mensaje al declinar asistencia", default: "Lamentamos que no puedas acompañarnos. Te tendremos presente.", font: "specialElite", multiline: true },
 ];
 
 // Mapa key → slot, para acceso rápido desde la plantilla.

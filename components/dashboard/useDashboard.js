@@ -259,6 +259,7 @@ export function useDashboard() {
           gift_label_2: form.giftLabel2?.trim() || null,
           gifts_message: form.giftsMessage?.trim() || null,
           bank_name: form.bankName?.trim() || null,
+          bank_holder: form.bankHolder?.trim() || null,
           show_dress_code: form.showDressCode,
           show_kids_policy: form.showKidsPolicy,
           show_gifts: form.showGifts,
