@@ -122,6 +122,20 @@ const GRAIN_URI = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/20
 // Fibras / moteado amplio (veta del papel).
 const FIBER_URI = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='4' seed='11'/><feColorMatrix type='saturate' values='0'/></filter><rect width='600' height='600' filter='url(%23f)'/></svg>")`;
 
+// Ramita de olivo en relieve para el centro del sello.
+function SealBranch({ color = "#c98e5f" }) {
+  return (
+    <svg width="26" height="54" viewBox="0 0 26 54" aria-hidden="true" style={{ filter: "drop-shadow(0 1.5px 1.5px rgba(60,30,12,.55)) drop-shadow(0 -0.5px 0.5px rgba(255,228,196,.4))" }}>
+      <path d="M13 6 C 12 22, 14 38, 13 50" stroke={color} strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <ellipse cx="13" cy="5" rx="3" ry="4.5" fill={color} />
+      <ellipse cx="5.5" cy="16" rx="7" ry="3.2" transform="rotate(-38 5.5 16)" fill={color} />
+      <ellipse cx="20.5" cy="22" rx="7" ry="3.2" transform="rotate(34 20.5 22)" fill={color} />
+      <ellipse cx="5.5" cy="30" rx="6.5" ry="3" transform="rotate(-30 5.5 30)" fill={color} />
+      <ellipse cx="20" cy="36" rx="6" ry="2.8" transform="rotate(28 20 36)" fill={color} />
+    </svg>
+  );
+}
+
 // ── intro tipo carta: sobre sellado que se abre al tocar el sello ───────────
 function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
   // 0 = cerrado · 1 = abriéndose (sello → solapa → sobre sube) · 2 = terminado
@@ -151,7 +165,7 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
       style={{
         position: "fixed", inset: 0, zIndex: 1000, cursor: "pointer",
         perspective: 1400, overflow: "hidden",
-        background: `linear-gradient(165deg, #5a7484, ${T.navy} 52%, #3c5060)`,
+        background: "linear-gradient(165deg, #f6f3ec, #ece7db 52%, #e0dacb)",
         transform: opening ? "translateY(-102%)" : "none",
         transition: "transform .95s cubic-bezier(.65,.05,.35,1) 1.05s",
       }}
@@ -159,21 +173,21 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
       <style>{`@keyframes olHintPulse { 0%,100% { opacity:.55 } 50% { opacity:1 } }`}</style>
 
       {/* pliegues laterales del sobre (sutiles) */}
-      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 0, 0 100%, 50% 55%)", background: "rgba(255,255,255,.035)" }} />
-      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(100% 0, 100% 100%, 50% 55%)", background: "rgba(255,255,255,.035)" }} />
-      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 100%, 100% 100%, 50% 42%)", background: "rgba(0,0,0,.10)", boxShadow: "0 -14px 30px rgba(15,25,35,.25)" }} />
+      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 0, 0 100%, 50% 55%)", background: "rgba(125,112,88,.05)" }} />
+      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(100% 0, 100% 100%, 50% 55%)", background: "rgba(125,112,88,.05)" }} />
+      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 100%, 100% 100%, 50% 42%)", background: "rgba(125,112,88,.08)", boxShadow: "0 -14px 30px rgba(125,112,88,.2)" }} />
 
       {/* textura de papel: fibras + grano + viñeta */}
-      <div style={{ position: "absolute", inset: 0, backgroundImage: FIBER_URI, backgroundSize: "600px 600px", opacity: 0.32, mixBlendMode: "soft-light", pointerEvents: "none", zIndex: 1 }} />
-      <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "240px 240px", opacity: 0.22, mixBlendMode: "overlay", pointerEvents: "none", zIndex: 1 }} />
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(130% 100% at 50% 38%, transparent 52%, rgba(8,16,24,.38))", pointerEvents: "none", zIndex: 1 }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: FIBER_URI, backgroundSize: "420px 420px", opacity: 0.34, mixBlendMode: "multiply", pointerEvents: "none", zIndex: 1, filter: "contrast(.62) brightness(1.42)" }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "170px 170px", opacity: 0.38, mixBlendMode: "overlay", pointerEvents: "none", zIndex: 1 }} />
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(130% 100% at 50% 38%, transparent 52%, rgba(125,110,84,.22))", pointerEvents: "none", zIndex: 1 }} />
 
       {/* solapa superior — se abre girando hacia arriba */}
       <div style={{
         position: "absolute", top: 0, left: 0, right: 0, height: "54%",
         clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-        background: "linear-gradient(180deg, #48606f, #3e5363)",
-        boxShadow: "0 20px 44px rgba(15,25,35,.5)",
+        background: "linear-gradient(180deg, #f2eee2, #e4ded0)",
+        boxShadow: "0 18px 38px rgba(115,100,75,.35)",
         transformOrigin: "top center",
         transform: opening ? "rotateX(-180deg)" : "rotateX(0deg)",
         transition: "transform 1s cubic-bezier(.65,.05,.35,1) .4s",
@@ -181,10 +195,10 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
         zIndex: 2,
       }}>
         {/* textura de papel de la solapa */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: FIBER_URI, backgroundSize: "600px 600px", opacity: 0.34, mixBlendMode: "soft-light" }} />
-        <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "240px 240px", opacity: 0.22, mixBlendMode: "overlay" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: FIBER_URI, backgroundSize: "420px 420px", opacity: 0.34, mixBlendMode: "multiply", filter: "contrast(.62) brightness(1.42)" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "170px 170px", opacity: 0.38, mixBlendMode: "overlay" }} />
         {/* luz en el doblez superior */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(255,255,255,.07), transparent 14%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(255,255,255,.5), transparent 12%)" }} />
       </div>
 
       {/* sello de cera con iniciales */}
@@ -198,36 +212,51 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
         <div style={{
           position: "absolute", inset: -13, transform: "rotate(9deg)",
           borderRadius: "58% 42% 47% 53% / 45% 60% 40% 55%",
-          background: "radial-gradient(circle at 40% 32%, #c3a067, #9c7a45 58%, #755a31)",
-          boxShadow: "0 16px 34px rgba(8,16,25,.6), 0 3px 8px rgba(8,16,25,.35), inset 0 -3px 7px rgba(50,36,15,.4)",
+          background: "radial-gradient(circle at 40% 32%, #b57b4e, #91572f 58%, #6b3d20)",
+          boxShadow: "0 14px 30px rgba(95,62,35,.5), 0 3px 8px rgba(95,62,35,.3), inset 0 -3px 7px rgba(50,26,10,.4)",
         }} />
         {/* lengüetas de cera fundidas al borde (mismo color plano que el borde del derrame) */}
-        <div style={{ position: "absolute", left: -22, bottom: 22, width: 34, height: 22, transform: "rotate(-28deg)", borderRadius: "70% 30% 60% 40% / 60% 55% 45% 40%", background: "#84663a", boxShadow: "0 6px 12px rgba(8,16,25,.4)" }} />
-        <div style={{ position: "absolute", right: -19, top: 30, width: 30, height: 19, transform: "rotate(22deg)", borderRadius: "40% 60% 50% 50% / 55% 45% 60% 40%", background: "#826438", boxShadow: "0 5px 10px rgba(8,16,25,.35)" }} />
-        <div style={{ position: "absolute", left: 30, top: -18, width: 22, height: 15, transform: "rotate(-12deg)", borderRadius: "55% 45% 65% 35% / 50% 60% 40% 50%", background: "#84663a", boxShadow: "0 4px 8px rgba(8,16,25,.3)" }} />
-        <div style={{ position: "absolute", right: 24, bottom: -14, width: 18, height: 13, transform: "rotate(14deg)", borderRadius: "45% 55% 50% 50% / 60% 40% 60% 40%", background: "#7d6035", boxShadow: "0 4px 8px rgba(8,16,25,.3)" }} />
+        <div style={{ position: "absolute", left: -22, bottom: 22, width: 34, height: 22, transform: "rotate(-28deg)", borderRadius: "70% 30% 60% 40% / 60% 55% 45% 40%", background: "#7e4a27", boxShadow: "0 6px 12px rgba(95,62,35,.4)" }} />
+        <div style={{ position: "absolute", right: -19, top: 30, width: 30, height: 19, transform: "rotate(22deg)", borderRadius: "40% 60% 50% 50% / 55% 45% 60% 40%", background: "#7b4826", boxShadow: "0 5px 10px rgba(95,62,35,.35)" }} />
+        <div style={{ position: "absolute", left: 30, top: -18, width: 22, height: 15, transform: "rotate(-12deg)", borderRadius: "55% 45% 65% 35% / 50% 60% 40% 50%", background: "#7e4a27", boxShadow: "0 4px 8px rgba(95,62,35,.3)" }} />
+        <div style={{ position: "absolute", right: 24, bottom: -14, width: 18, height: 13, transform: "rotate(14deg)", borderRadius: "45% 55% 50% 50% / 60% 40% 60% 40%", background: "#764424", boxShadow: "0 4px 8px rgba(95,62,35,.3)" }} />
 
-        {/* disco estampado */}
+        {/* disco: aro grueso del sello */}
         <div style={{
           position: "absolute", inset: 0, overflow: "hidden",
           borderRadius: "48% 52% 50% 50% / 53% 46% 54% 47%",
-          background: "radial-gradient(circle at 36% 28%, #dcbf87, #B08D52 52%, #86683c 86%, #74582e)",
-          boxShadow: "inset 0 3px 9px rgba(255,247,232,.5), inset 0 -8px 16px rgba(70,50,22,.55), inset 3px 0 8px rgba(255,240,210,.15), 0 8px 18px rgba(8,16,25,.45)",
+          background: "radial-gradient(circle at 36% 28%, #c68b5e, #a4693e 52%, #83512c 86%, #6f401f)",
+          boxShadow: "inset 0 3px 9px rgba(255,225,190,.45), inset 0 -8px 16px rgba(60,32,14,.55), inset 3px 0 8px rgba(255,225,190,.14), 0 8px 18px rgba(95,62,35,.4)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           {/* grano de la cera */}
-          <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "120px 120px", opacity: 0.18, mixBlendMode: "overlay", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "120px 120px", opacity: 0.2, mixBlendMode: "overlay", pointerEvents: "none" }} />
           {/* brillo especular */}
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 40% at 32% 20%, rgba(255,250,235,.42), transparent 65%)", pointerEvents: "none" }} />
-          {/* anillo del cuño */}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 40% at 32% 20%, rgba(255,235,210,.38), transparent 65%)", pointerEvents: "none" }} />
+          {/* cara interior hundida (donde estampa el cuño) */}
           <div style={{
-            width: 94, height: 94, borderRadius: "50%",
-            border: "1.5px solid rgba(100,74,36,.6)",
-            boxShadow: "inset 0 2px 7px rgba(80,58,26,.45), inset 0 -2px 5px rgba(255,238,205,.25), 0 1px 2px rgba(255,238,205,.3)",
+            position: "absolute", inset: 13, borderRadius: "50%", overflow: "hidden",
+            background: "radial-gradient(circle at 38% 30%, #ab6f42, #935c35 55%, #7b4826)",
+            boxShadow: "inset 0 3px 8px rgba(55,30,14,.5), inset 0 -2px 5px rgba(245,200,160,.22)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            {/* iniciales grabadas en la cera */}
-            <span style={{ fontFamily: sealFont, fontSize: 32, fontWeight: 600, letterSpacing: "0.04em", color: "#5e4826", textShadow: "0 -1px 1px rgba(60,42,16,.65), 0 1px 1px rgba(255,238,205,.5)", whiteSpace: "nowrap" }}>{sealText}</span>
+            {/* estrías radiales de la cera prensada */}
+            <div style={{ position: "absolute", inset: 0, background: "repeating-conic-gradient(from 10deg, rgba(255,220,185,.045) 0deg 2deg, transparent 2deg 7deg, rgba(70,38,16,.04) 7deg 9deg, transparent 9deg 13deg)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "120px 120px", opacity: 0.16, mixBlendMode: "overlay", pointerEvents: "none" }} />
+            {/* iniciales en relieve a los lados de la ramita de olivo */}
+            {(() => {
+              const letterStyle = { fontFamily: sealFont, fontSize: 29, fontWeight: 600, color: "#c98e5f", textShadow: "0 -1px 1px rgba(255,228,196,.5), 0 2px 2px rgba(60,30,12,.6)", lineHeight: 1 };
+              const m = String(sealText).match(/^(\S{1,3})\s*&\s*(\S{1,3})$/);
+              return m ? (
+                <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={letterStyle}>{m[1]}</span>
+                  <SealBranch />
+                  <span style={letterStyle}>{m[2]}</span>
+                </div>
+              ) : (
+                <span style={{ ...letterStyle, whiteSpace: "nowrap", position: "relative" }}>{sealText}</span>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -236,7 +265,7 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
       <div style={{
         position: "absolute", top: "calc(54% + 96px)", left: 0, right: 0, zIndex: 3,
         textAlign: "center", fontFamily: hintFont, fontSize: 11, fontWeight: 500,
-        letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(245,240,230,.85)",
+        letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(111,106,88,.9)",
         opacity: opening ? 0 : 1, transition: "opacity .3s ease",
         animation: "olHintPulse 2.6s ease-in-out infinite",
       }}>{hint}</div>
