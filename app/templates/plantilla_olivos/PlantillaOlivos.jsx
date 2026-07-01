@@ -116,6 +116,12 @@ function SectionTitle({ script, caps, scriptColor = T.sage, scriptFont = SCRIPT,
   );
 }
 
+// ── texturas de papel/cera (ruido SVG inline, sin assets externos) ──────────
+// Grano fino (para papel y superficie de la cera).
+const GRAIN_URI = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='240' height='240' filter='url(%23g)'/></svg>")`;
+// Fibras / moteado amplio (veta del papel).
+const FIBER_URI = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='4' seed='11'/><feColorMatrix type='saturate' values='0'/></filter><rect width='600' height='600' filter='url(%23f)'/></svg>")`;
+
 // ── intro tipo carta: sobre sellado que se abre al tocar el sello ───────────
 function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
   // 0 = cerrado · 1 = abriéndose (sello → solapa → sobre sube) · 2 = terminado
@@ -157,6 +163,11 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
       <div style={{ position: "absolute", inset: 0, clipPath: "polygon(100% 0, 100% 100%, 50% 55%)", background: "rgba(255,255,255,.035)" }} />
       <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 100%, 100% 100%, 50% 42%)", background: "rgba(0,0,0,.10)", boxShadow: "0 -14px 30px rgba(15,25,35,.25)" }} />
 
+      {/* textura de papel: fibras + grano + viñeta */}
+      <div style={{ position: "absolute", inset: 0, backgroundImage: FIBER_URI, backgroundSize: "600px 600px", opacity: 0.32, mixBlendMode: "soft-light", pointerEvents: "none", zIndex: 1 }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "240px 240px", opacity: 0.22, mixBlendMode: "overlay", pointerEvents: "none", zIndex: 1 }} />
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(130% 100% at 50% 38%, transparent 52%, rgba(8,16,24,.38))", pointerEvents: "none", zIndex: 1 }} />
+
       {/* solapa superior — se abre girando hacia arriba */}
       <div style={{
         position: "absolute", top: 0, left: 0, right: 0, height: "54%",
@@ -168,26 +179,56 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
         transition: "transform 1s cubic-bezier(.65,.05,.35,1) .4s",
         backfaceVisibility: "hidden",
         zIndex: 2,
-      }} />
+      }}>
+        {/* textura de papel de la solapa */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: FIBER_URI, backgroundSize: "600px 600px", opacity: 0.34, mixBlendMode: "soft-light" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "240px 240px", opacity: 0.22, mixBlendMode: "overlay" }} />
+        {/* luz en el doblez superior */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(255,255,255,.07), transparent 14%)" }} />
+      </div>
 
       {/* sello de cera con iniciales */}
       <div style={{
-        position: "absolute", top: "54%", left: "50%", width: 122, height: 122, zIndex: 3,
+        position: "absolute", top: "54%", left: "50%", width: 126, height: 126, zIndex: 3,
         transform: opening ? "translate(-50%,-50%) scale(.5) rotate(-16deg)" : "translate(-50%,-50%)",
         opacity: opening ? 0 : 1,
         transition: "transform .45s ease, opacity .45s ease",
-        borderRadius: "48% 52% 50% 50% / 53% 46% 54% 47%",
-        background: "radial-gradient(circle at 36% 30%, #d6b87f, #B08D52 48%, #8a6d3e)",
-        boxShadow: "inset 0 3px 8px rgba(255,247,232,.45), inset 0 -7px 14px rgba(78,57,28,.45), 0 14px 32px rgba(10,20,30,.55)",
-        display: "flex", alignItems: "center", justifyContent: "center",
       }}>
+        {/* derrame de cera: base irregular más ancha que el disco */}
         <div style={{
-          width: 92, height: 92, borderRadius: "50%",
-          border: "1.5px solid rgba(110,82,40,.55)",
-          boxShadow: "inset 0 2px 6px rgba(90,65,30,.35)",
+          position: "absolute", inset: -13, transform: "rotate(9deg)",
+          borderRadius: "58% 42% 47% 53% / 45% 60% 40% 55%",
+          background: "radial-gradient(circle at 40% 32%, #c3a067, #9c7a45 58%, #755a31)",
+          boxShadow: "0 16px 34px rgba(8,16,25,.6), 0 3px 8px rgba(8,16,25,.35), inset 0 -3px 7px rgba(50,36,15,.4)",
+        }} />
+        {/* lengüetas de cera fundidas al borde (mismo color plano que el borde del derrame) */}
+        <div style={{ position: "absolute", left: -22, bottom: 22, width: 34, height: 22, transform: "rotate(-28deg)", borderRadius: "70% 30% 60% 40% / 60% 55% 45% 40%", background: "#84663a", boxShadow: "0 6px 12px rgba(8,16,25,.4)" }} />
+        <div style={{ position: "absolute", right: -19, top: 30, width: 30, height: 19, transform: "rotate(22deg)", borderRadius: "40% 60% 50% 50% / 55% 45% 60% 40%", background: "#826438", boxShadow: "0 5px 10px rgba(8,16,25,.35)" }} />
+        <div style={{ position: "absolute", left: 30, top: -18, width: 22, height: 15, transform: "rotate(-12deg)", borderRadius: "55% 45% 65% 35% / 50% 60% 40% 50%", background: "#84663a", boxShadow: "0 4px 8px rgba(8,16,25,.3)" }} />
+        <div style={{ position: "absolute", right: 24, bottom: -14, width: 18, height: 13, transform: "rotate(14deg)", borderRadius: "45% 55% 50% 50% / 60% 40% 60% 40%", background: "#7d6035", boxShadow: "0 4px 8px rgba(8,16,25,.3)" }} />
+
+        {/* disco estampado */}
+        <div style={{
+          position: "absolute", inset: 0, overflow: "hidden",
+          borderRadius: "48% 52% 50% 50% / 53% 46% 54% 47%",
+          background: "radial-gradient(circle at 36% 28%, #dcbf87, #B08D52 52%, #86683c 86%, #74582e)",
+          boxShadow: "inset 0 3px 9px rgba(255,247,232,.5), inset 0 -8px 16px rgba(70,50,22,.55), inset 3px 0 8px rgba(255,240,210,.15), 0 8px 18px rgba(8,16,25,.45)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <span style={{ fontFamily: sealFont, fontSize: 32, fontWeight: 600, letterSpacing: "0.04em", color: "#6b5330", textShadow: "0 1px 1px rgba(255,240,215,.45)", whiteSpace: "nowrap" }}>{sealText}</span>
+          {/* grano de la cera */}
+          <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URI, backgroundSize: "120px 120px", opacity: 0.18, mixBlendMode: "overlay", pointerEvents: "none" }} />
+          {/* brillo especular */}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 40% at 32% 20%, rgba(255,250,235,.42), transparent 65%)", pointerEvents: "none" }} />
+          {/* anillo del cuño */}
+          <div style={{
+            width: 94, height: 94, borderRadius: "50%",
+            border: "1.5px solid rgba(100,74,36,.6)",
+            boxShadow: "inset 0 2px 7px rgba(80,58,26,.45), inset 0 -2px 5px rgba(255,238,205,.25), 0 1px 2px rgba(255,238,205,.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {/* iniciales grabadas en la cera */}
+            <span style={{ fontFamily: sealFont, fontSize: 32, fontWeight: 600, letterSpacing: "0.04em", color: "#5e4826", textShadow: "0 -1px 1px rgba(60,42,16,.65), 0 1px 1px rgba(255,238,205,.5)", whiteSpace: "nowrap" }}>{sealText}</span>
+          </div>
         </div>
       </div>
 
