@@ -109,9 +109,9 @@ function Divider() {
 
 function SectionTitle({ script, caps, scriptColor = T.sage, scriptFont = SCRIPT, capsFont = SERIF }) {
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "center", gap: 10, marginBottom: 16, maxWidth: "100%" }}>
-      <span style={{ fontFamily: scriptFont, fontSize: 46, color: scriptColor, lineHeight: 1, paddingBottom: 2, overflowWrap: "anywhere", maxWidth: "100%" }}>{script}</span>
-      <span style={{ fontFamily: capsFont, fontWeight: 700, fontSize: 28, letterSpacing: "0.14em", textTransform: "uppercase", color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{caps}</span>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "center", gap: 10, marginBottom: 16, maxWidth: "100%", textAlign: "center" }}>
+      <span style={{ fontFamily: scriptFont, fontSize: 46, color: scriptColor, lineHeight: 1.1, paddingBottom: 2, overflowWrap: "anywhere", maxWidth: "100%", textAlign: "center" }}>{script}</span>
+      <span style={{ fontFamily: capsFont, fontWeight: 700, fontSize: 28, letterSpacing: "0.14em", textTransform: "uppercase", color: T.navy, overflowWrap: "anywhere", maxWidth: "100%", textAlign: "center", lineHeight: 1.35, textWrap: "balance" }}>{caps}</span>
     </div>
   );
 }
