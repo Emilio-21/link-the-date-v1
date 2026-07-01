@@ -20,6 +20,7 @@
 // invitación, para que el formulario respete ese orden.
 
 export const OLIVOS_SECTIONS = [
+  "Sobre (intro)",
   "Portada",
   "Saludo",
   "Cuenta regresiva",
@@ -31,6 +32,10 @@ export const OLIVOS_SECTIONS = [
 ];
 
 export const OLIVOS_SLOTS = [
+  // ── Sobre (intro con sello de cera) ──────────────────────────────────
+  { key: "envelope_seal", section: "Sobre (intro)", label: "Texto del sello (vacío = iniciales automáticas)", default: "", font: "cormorant" },
+  { key: "envelope_hint", section: "Sobre (intro)", label: "Indicación bajo el sello", default: "Toca el sello para abrir", font: "playfair" },
+
   // ── Portada ──────────────────────────────────────────────────────────
   { key: "cover_intro",   section: "Portada", label: "Frase de invitación", default: "Tienen el honor de acompañarnos\nen la boda de", font: "playfair", multiline: true },
   { key: "couple_name",   section: "Portada", label: "Nombres de los novios (fuente)", font: "pinyon", textEditable: false },

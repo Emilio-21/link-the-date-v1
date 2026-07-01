@@ -116,6 +116,93 @@ function SectionTitle({ script, caps, scriptColor = T.sage, scriptFont = SCRIPT,
   );
 }
 
+// ── intro tipo carta: sobre sellado que se abre al tocar el sello ───────────
+function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
+  // 0 = cerrado · 1 = abriéndose (sello → solapa → sobre sube) · 2 = terminado
+  const [phase, setPhase] = useState(0);
+
+  // Bloquea el scroll de fondo mientras el sobre está visible.
+  useEffect(() => {
+    if (phase === 2) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [phase]);
+
+  if (phase === 2) return null;
+  const opening = phase === 1;
+  const open = () => {
+    if (opening) return;
+    setPhase(1);
+    setTimeout(() => setPhase(2), 2100);
+  };
+
+  return (
+    <div
+      onClick={open}
+      role="button"
+      aria-label="Abrir invitación"
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000, cursor: "pointer",
+        perspective: 1400, overflow: "hidden",
+        background: `linear-gradient(165deg, #5a7484, ${T.navy} 52%, #3c5060)`,
+        transform: opening ? "translateY(-102%)" : "none",
+        transition: "transform .95s cubic-bezier(.65,.05,.35,1) 1.05s",
+      }}
+    >
+      <style>{`@keyframes olHintPulse { 0%,100% { opacity:.55 } 50% { opacity:1 } }`}</style>
+
+      {/* pliegues laterales del sobre (sutiles) */}
+      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 0, 0 100%, 50% 55%)", background: "rgba(255,255,255,.035)" }} />
+      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(100% 0, 100% 100%, 50% 55%)", background: "rgba(255,255,255,.035)" }} />
+      <div style={{ position: "absolute", inset: 0, clipPath: "polygon(0 100%, 100% 100%, 50% 42%)", background: "rgba(0,0,0,.10)", boxShadow: "0 -14px 30px rgba(15,25,35,.25)" }} />
+
+      {/* solapa superior — se abre girando hacia arriba */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: "54%",
+        clipPath: "polygon(0 0, 100% 0, 50% 100%)",
+        background: "linear-gradient(180deg, #48606f, #3e5363)",
+        boxShadow: "0 20px 44px rgba(15,25,35,.5)",
+        transformOrigin: "top center",
+        transform: opening ? "rotateX(-180deg)" : "rotateX(0deg)",
+        transition: "transform 1s cubic-bezier(.65,.05,.35,1) .4s",
+        backfaceVisibility: "hidden",
+        zIndex: 2,
+      }} />
+
+      {/* sello de cera con iniciales */}
+      <div style={{
+        position: "absolute", top: "54%", left: "50%", width: 122, height: 122, zIndex: 3,
+        transform: opening ? "translate(-50%,-50%) scale(.5) rotate(-16deg)" : "translate(-50%,-50%)",
+        opacity: opening ? 0 : 1,
+        transition: "transform .45s ease, opacity .45s ease",
+        borderRadius: "48% 52% 50% 50% / 53% 46% 54% 47%",
+        background: "radial-gradient(circle at 36% 30%, #d6b87f, #B08D52 48%, #8a6d3e)",
+        boxShadow: "inset 0 3px 8px rgba(255,247,232,.45), inset 0 -7px 14px rgba(78,57,28,.45), 0 14px 32px rgba(10,20,30,.55)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <div style={{
+          width: 92, height: 92, borderRadius: "50%",
+          border: "1.5px solid rgba(110,82,40,.55)",
+          boxShadow: "inset 0 2px 6px rgba(90,65,30,.35)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <span style={{ fontFamily: sealFont, fontSize: 32, fontWeight: 600, letterSpacing: "0.04em", color: "#6b5330", textShadow: "0 1px 1px rgba(255,240,215,.45)", whiteSpace: "nowrap" }}>{sealText}</span>
+        </div>
+      </div>
+
+      {/* indicación */}
+      <div style={{
+        position: "absolute", top: "calc(54% + 96px)", left: 0, right: 0, zIndex: 3,
+        textAlign: "center", fontFamily: hintFont, fontSize: 11, fontWeight: 500,
+        letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(245,240,230,.85)",
+        opacity: opening ? 0 : 1, transition: "opacity .3s ease",
+        animation: "olHintPulse 2.6s ease-in-out infinite",
+      }}>{hint}</div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 export function PlantillaOlivos({ event, guest, rsvp }) {
   // ── personalización (texto + fuente por sección) ─────────────────────────
@@ -137,6 +224,12 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
   // ── datos ──────────────────────────────────────────────────────────────
   const [partnerA, partnerB] = splitCouple(event?.couple_name || "");
+  // Iniciales para el sello del sobre: "S & B" (o texto personalizado del slot).
+  const autoInitials = [partnerA, partnerB]
+    .map((n) => (n || "").trim().charAt(0).toUpperCase())
+    .filter(Boolean)
+    .join(" & ");
+  const sealText = tx("envelope_seal") || autoInitials || "♥";
   const eventDate = event?.event_date || "";
   const eventISO = wallClockISO(event); // hora de pared fija (no se ajusta a zonas horarias)
   const dateObj = eventDate ? new Date(`${eventDate}T00:00:00`) : null;
@@ -253,6 +346,9 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
     <div style={{ minHeight: "100vh", background: "radial-gradient(120% 80% at 50% 0%, #e1e4dd, #c4ccc5 120%)", display: "flex", justifyContent: "center", fontFamily: MONO, color: T.ink, WebkitFontSmoothing: "antialiased" }}>
       {/* Fuentes + filtros SVG (self-contained) */}
       {fontsHref && <link rel="stylesheet" href={fontsHref} />}
+
+      {/* Intro: sobre sellado que se abre como carta */}
+      <EnvelopeIntro sealText={sealText} sealFont={ff("envelope_seal")} hint={tx("envelope_hint")} hintFont={ff("envelope_hint")} />
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <defs>
           <filter id="ol-deckle"><feTurbulence type="fractalNoise" baseFrequency="0.013 0.017" numOctaves="3" seed="7" result="t" /><feDisplacementMap in="SourceGraphic" in2="t" scale="7" xChannelSelector="R" yChannelSelector="G" /></filter>
