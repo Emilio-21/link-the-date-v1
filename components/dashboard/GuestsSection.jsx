@@ -237,16 +237,50 @@ export default function GuestsSection({
   const [editingGuest, setEditingGuest] = useState(null);
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState("lista"); // "lista" | "nombre" | "mesa"
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = q
       ? guests.filter((g) =>
-          [g.name, g.email, g.phone].filter(Boolean).some((s) => s.toLowerCase().includes(q))
+          [g.name, g.email, g.phone, g.table_assignment]
+            .filter(Boolean)
+            .some((s) => String(s).toLowerCase().includes(q))
         )
       : guests;
-    return list.map((g, i) => guestView(g, i));
-  }, [guests, query]);
+    const rows = list.map((g, i) => guestView(g, i));
+    if (sortBy === "nombre" || sortBy === "mesa") {
+      rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "es"));
+    }
+    return rows;
+  }, [guests, query, sortBy]);
+
+  // Agrupación por mesa (solo cuando se ordena por mesa). Las mesas se ordenan
+  // numéricamente ("2" antes que "10") y los invitados sin mesa van al final.
+  const tableGroups = useMemo(() => {
+    if (sortBy !== "mesa") return null;
+    const map = new Map();
+    for (const gv of filtered) {
+      const key = (gv.raw.table_assignment || "").trim();
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(gv);
+    }
+    const keys = [...map.keys()].sort((a, b) => {
+      if (!a) return 1;
+      if (!b) return -1;
+      return a.localeCompare(b, "es", { numeric: true, sensitivity: "base" });
+    });
+    return keys.map((k) => {
+      const rows = map.get(k);
+      return {
+        key: k || "__sin_mesa__",
+        label: !k ? "Sin mesa" : /mesa/i.test(k) ? k : `Mesa ${k}`,
+        rows,
+        pases: rows.reduce((s, gv) => s + (Number(gv.pases) || 0), 0),
+        confirmados: rows.reduce((s, gv) => s + (Number(gv.asistentes) || 0), 0),
+      };
+    });
+  }, [filtered, sortBy]);
 
   async function handleAdd(data) {
     setBusy(true);
@@ -297,9 +331,26 @@ export default function GuestsSection({
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar invitado…"
+                placeholder="Buscar invitado o mesa…"
                 style={{ border: "none", background: "transparent", outline: "none", fontSize: 13, color: "#3a382f", width: "100%" }}
               />
+            </div>
+            {/* orden: lista original · por nombre · agrupado por mesa */}
+            <div style={{ display: "flex", alignItems: "center", padding: 3, gap: 2, background: "rgba(255,255,255,0.6)", border: "1px solid rgba(120,115,95,0.18)", borderRadius: 11 }}>
+              {[["lista", "Lista"], ["nombre", "Nombre"], ["mesa", "Mesa"]].map(([val, label]) => (
+                <button
+                  key={val}
+                  onClick={() => setSortBy(val)}
+                  style={{
+                    padding: "6px 12px", border: "none", borderRadius: 8, cursor: "pointer",
+                    fontWeight: 700, fontSize: 12,
+                    background: sortBy === val ? "rgba(196,163,94,0.22)" : "transparent",
+                    color: sortBy === val ? C.goldDeep : C.mutedSoft,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
             <button onClick={openAdd} style={goldButton}>{ICONS.plus}{showForm ? "Cerrar" : "Agregar"}</button>
           </div>
@@ -339,6 +390,28 @@ export default function GuestsSection({
           ) : filtered.length === 0 ? (
             <div style={{ padding: "32px 20px", textAlign: "center", color: C.mutedSoft, fontWeight: 600, fontSize: 14 }}>
               Ningún invitado coincide con “{query}”.
+            </div>
+          ) : tableGroups ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+              {tableGroups.map((gr) => (
+                <div key={gr.key}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", margin: "0 2px 10px" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+                      <span style={{ width: 7, height: 7, background: C.gold, transform: "rotate(45deg)", flex: "none" }} />
+                      <span className="font-serif-ltd" style={{ fontWeight: 700, fontSize: 18, color: C.ink }}>{gr.label}</span>
+                    </span>
+                    <span style={{ fontSize: 12.5, color: C.mutedSoft, fontWeight: 600 }}>
+                      {gr.rows.length} invitado{gr.rows.length !== 1 ? "s" : ""} · {gr.pases} pase{gr.pases !== 1 ? "s" : ""} · {gr.confirmados} confirmado{gr.confirmados !== 1 ? "s" : ""}
+                    </span>
+                    <span style={{ flex: 1, height: 1, background: "rgba(120,115,95,0.18)", alignSelf: "center", minWidth: 40 }} />
+                  </div>
+                  {isPhone ? (
+                    <CardsView rows={gr.rows} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+                  ) : (
+                    <RowsView rows={gr.rows} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+                  )}
+                </div>
+              ))}
             </div>
           ) : isPhone ? (
             <CardsView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
