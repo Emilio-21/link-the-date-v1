@@ -1,45 +1,50 @@
 // app/templates/plantilla_olivos/PlantillaOlivos.jsx
-// Plantilla "Olivos" — botánica salvia + azul polvo + champagne.
-// Portada desde editor visual (x-dc) a React. Contrato: { event, guest, rsvp }.
+// Plantilla "Olivos" — editorial moderno: crema/hueso + verde profundo,
+// fotografía a sangre y serif itálica de gran tamaño.
+// Contrato: { event, guest, rsvp }.
 // Notas:
-//  - Las animaciones scroll-driven del original (animation-timeline:view()) se
-//    omiten a propósito: no funcionan en Safari iOS y dejaban el contenido en
-//    opacity:0. Aquí todo es visible por defecto.
+//  - El ritmo visual alterna foto a sangre → crema → verde → crema…
+//  - Los títulos de sección se arman con dos slots que se leen como una sola
+//    frase; se deja la fuente por separado por si se quiere contrastar.
+//  - Las animaciones scroll-driven se omiten a propósito (no funcionan en
+//    Safari iOS y dejaban el contenido en opacity:0).
 //  - RSVP conectado a /api/rsvp con selector de pases.
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { rsvpDeadlineText, localeOf, wallClockISO, eventTimeText } from "@/lib/dashboard/utils";
-import { resolveFont, googleFontsHref } from "@/lib/templates/fonts";
+import { resolveFont, fontKind, googleFontsHref } from "@/lib/templates/fonts";
 import { OLIVOS_SLOT_MAP } from "./content";
 
 const ASSET = (n) => `/template/plantilla_olivos/${n}`;
 
 // ── paleta / tokens ────────────────────────────────────────────────────────
 const T = {
-  navy: "#4E6679",
-  ink: "#4A4A42",
-  soft: "#6F6A58",
-  gold: "#B08D52",
-  goldSoft: "#C2A878",
-  goldDark: "#8a6d3e",
-  sage: "#93A07F",
-  blue: "#6F8AA3",
-  paper: "#F5F0E6",
-  paper2: "#F8F4EA",
-  paper3: "#F1ECE0",
+  ink: "#1F2A20",        // verde casi negro — texto principal sobre crema
+  inkSoft: "#4A5347",    // texto secundario sobre crema
+  muted: "#7D8378",      // texto terciario / etiquetas
+  green: "#243021",      // verde profundo — secciones oscuras
+  greenDeep: "#1A2418",
+  cream: "#F7F5EE",      // crema principal
+  cream2: "#EFEBE0",     // crema alterno (tarjetas)
+  onGreen: "#EDEAE0",    // texto sobre verde
+  onGreenSoft: "rgba(237,234,224,.62)",
+  line: "rgba(31,42,32,.14)",
+  lineOn: "rgba(237,234,224,.22)",
+  accent: "#A08B5B",     // dorado oliva apagado, para detalles finos
 };
-const SERIF = "'Playfair Display',serif";
-const SCRIPT = "'Pinyon Script',cursive";
-const MONO = "'Special Elite',monospace";
+const DISPLAY = "'Playfair Display',serif";
+const SANS = "'Jost',sans-serif";
 
-// Paleta de vestimenta (fija para esta plantilla)
+// Paleta de vestimenta (fija para esta plantilla).
+// Nota: el tono más oscuro se aclara respecto al verde de la sección para que
+// el círculo no se pierda contra el fondo.
 const DRESS_PALETTE = [
-  { c: "#6F8AA3", n: "Azul polvo" },
-  { c: "#4E6679", n: "Azul noche" },
-  { c: "#93A07F", n: "Salvia" },
-  { c: "#F1ECE0", n: "Marfil", border: true },
-  { c: "#B08D52", n: "Champagne" },
+  { c: "#38452F", n: "Verde bosque" },
+  { c: "#5C6B4E", n: "Oliva" },
+  { c: "#9CA189", n: "Salvia seca" },
+  { c: "#D6CFBD", n: "Arena" },
+  { c: "#F2EEE4", n: "Marfil" },
 ];
 
 // ── helpers de fecha / nombre ───────────────────────────────────────────────
@@ -54,6 +59,12 @@ function monthES(d, locale = "es-MX") {
   try { return d.toLocaleDateString(locale, { month: "long" }); } catch { return ""; }
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+// Etiqueta pequeña en versales espaciadas (el recurso tipográfico del estilo).
+const label = (extra = {}) => ({
+  fontFamily: SANS, fontSize: 10, fontWeight: 500, letterSpacing: "0.3em",
+  textTransform: "uppercase", ...extra,
+});
 
 // ── countdown ───────────────────────────────────────────────────────────────
 function Countdown({ iso }) {
@@ -75,45 +86,30 @@ function Countdown({ iso }) {
     return () => clearInterval(id);
   }, [iso]);
 
-  const Unit = ({ val, label, color = T.navy }) => (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 60 }}>
-      <div style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 48, lineHeight: 0.9, color, fontVariantNumeric: "tabular-nums" }}>{val}</div>
-      <div style={{ fontSize: 9.5, letterSpacing: "0.3em", textTransform: "uppercase", color: T.soft, fontFamily: "'Jost',sans-serif" }}>{label}</div>
+  const Unit = ({ val, lbl }) => (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 56 }}>
+      <div style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: 42, lineHeight: 0.95, color: T.onGreen, fontVariantNumeric: "tabular-nums" }}>{val}</div>
+      <div style={label({ fontSize: 8.5, letterSpacing: "0.26em", color: T.onGreenSoft })}>{lbl}</div>
     </div>
   );
-  const Dot = () => <div style={{ fontFamily: SERIF, fontWeight: 400, fontSize: 40, lineHeight: 1.05, color: T.goldSoft }}>·</div>;
+  const Sep = () => <div style={{ fontFamily: DISPLAY, fontSize: 30, lineHeight: 1.1, color: "rgba(237,234,224,.28)" }}>:</div>;
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: 12 }}>
-      <Unit val={t.d} label="Días" />
-      <Dot />
-      <Unit val={t.h} label="Horas" />
-      <Dot />
-      <Unit val={t.m} label="Min" />
-      <Dot />
-      <Unit val={t.s} label="Seg" color={T.sage} />
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: 10 }}>
+      <Unit val={t.d} lbl="Días" />
+      <Sep />
+      <Unit val={t.h} lbl="Horas" />
+      <Sep />
+      <Unit val={t.m} lbl="Min" />
+      <Sep />
+      <Unit val={t.s} lbl="Seg" />
     </div>
   );
 }
 
-// ── separador decorativo (rombo + líneas) ───────────────────────────────────
-function Divider() {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, margin: "26px 0 0" }}>
-      <span style={{ width: 36, height: 1, background: "linear-gradient(90deg,transparent,#C2A878)" }} />
-      <span style={{ width: 5, height: 5, background: T.gold, transform: "rotate(45deg)" }} />
-      <span style={{ width: 36, height: 1, background: "linear-gradient(90deg,#C2A878,transparent)" }} />
-    </div>
-  );
-}
-
-function SectionTitle({ script, caps, scriptColor = T.sage, scriptFont = SCRIPT, capsFont = SERIF }) {
-  return (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "center", gap: 10, marginBottom: 16, maxWidth: "100%", textAlign: "center" }}>
-      <span style={{ fontFamily: scriptFont, fontSize: 46, color: scriptColor, lineHeight: 1.1, paddingBottom: 2, overflowWrap: "anywhere", maxWidth: "100%", textAlign: "center" }}>{script}</span>
-      <span style={{ fontFamily: capsFont, fontWeight: 700, fontSize: 28, letterSpacing: "0.14em", textTransform: "uppercase", color: T.navy, overflowWrap: "anywhere", maxWidth: "100%", textAlign: "center", lineHeight: 1.35, textWrap: "balance" }}>{caps}</span>
-    </div>
-  );
+// ── filete fino (sustituye al separador botánico) ───────────────────────────
+function Rule({ color = T.line, width = 54, margin = "22px auto" }) {
+  return <div style={{ width, height: 1, background: color, margin }} />;
 }
 
 // ── texturas de papel/cera (ruido SVG inline, sin assets externos) ──────────
@@ -283,11 +279,17 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
     const t = typeof o.text === "string" ? o.text.trim() : "";
     return t || OLIVOS_SLOT_MAP[key]?.default || "";
   };
+  const fontKeyOf = (key) => (cz[key] || {}).font || OLIVOS_SLOT_MAP[key]?.font;
   // Fuente del slot: usa el override o la fuente por defecto del registro.
-  const ff = (key) => resolveFont((cz[key] || {}).font || OLIVOS_SLOT_MAP[key]?.font);
+  const ff = (key) => resolveFont(fontKeyOf(key));
+  // Estilo de título: itálica del display, salvo si la fuente ya es caligráfica.
+  const titleFont = (key) => ({
+    fontFamily: ff(key),
+    fontStyle: fontKind(fontKeyOf(key)) === "script" ? "normal" : "italic",
+  });
   // URL de Google Fonts: base de la plantilla + cualquier fuente personalizada.
   const fontsHref = useMemo(() => {
-    const base = ["playfair", "pinyon", "specialElite", "jost"];
+    const base = ["playfair", "jost", "cormorant"];
     const overrides = Object.values(cz).map((o) => o?.font).filter(Boolean);
     return googleFontsHref([...base, ...overrides]);
   }, [event?.customization]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -306,7 +308,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
   const locale = localeOf(event);
   const dateText = dateObj
-    ? `${dateObj.getDate()} · ${cap(monthES(dateObj, locale))} · ${dateObj.getFullYear()}`
+    ? `${dateObj.getDate()} de ${cap(monthES(dateObj, locale))} de ${dateObj.getFullYear()}`
     : (event?.date_text || "");
   const longDate = dateObj
     ? `${cap(dateObj.toLocaleDateString(locale, { weekday: "long" }))} · ${dateObj.getDate()}${locale === "en-US" ? " " : " de "}${cap(monthES(dateObj, locale))}`
@@ -401,9 +403,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const yes = attending === true;
   const no = attending === false;
   const segBase = {
-    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
-    padding: "15px 0", borderRadius: 3, fontFamily: SERIF, fontSize: 12, fontWeight: 600,
-    letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", transition: "all .25s ease", userSelect: "none",
+    flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+    padding: "15px 0", borderRadius: 2, fontSize: 10.5, fontWeight: 500,
+    letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer",
+    transition: "all .25s ease", userSelect: "none",
   };
 
   const passOptions = useMemo(
@@ -411,46 +414,57 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
     [maxGuests]
   );
 
+  // Título de sección: las dos partes se leen como una sola frase itálica.
+  const SectionTitle = ({ a, b, color = T.ink, size = 37 }) => (
+    <h2 style={{
+      margin: 0, textAlign: "center", fontWeight: 400, fontSize: size,
+      lineHeight: 1.16, color, textWrap: "balance", overflowWrap: "anywhere",
+    }}>
+      {tx(a) && <span style={titleFont(a)}>{tx(a)} </span>}
+      {tx(b) && <span style={titleFont(b)}>{tx(b)}</span>}
+    </h2>
+  );
+
+  // Estilos de sección reutilizables.
+  const secCream = { position: "relative", background: T.cream, padding: "76px 34px 80px" };
+  const secGreen = { position: "relative", background: T.green, padding: "76px 34px 80px", color: T.onGreen };
+  const bodyText = (over = false) => ({
+    fontFamily: SANS, fontSize: 13, fontWeight: 300, lineHeight: 2,
+    color: over ? T.onGreenSoft : T.inkSoft, textWrap: "pretty", whiteSpace: "pre-line",
+  });
+
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: "radial-gradient(120% 80% at 50% 0%, #e1e4dd, #c4ccc5 120%)", display: "flex", justifyContent: "center", fontFamily: MONO, color: T.ink, WebkitFontSmoothing: "antialiased" }}>
-      {/* Fuentes + filtros SVG (self-contained) */}
+    <div style={{ minHeight: "100vh", background: "#E6E3DA", display: "flex", justifyContent: "center", fontFamily: SANS, color: T.ink, WebkitFontSmoothing: "antialiased" }}>
       {fontsHref && <link rel="stylesheet" href={fontsHref} />}
 
       {/* Intro: sobre sellado que se abre como carta */}
       <EnvelopeIntro sealText={sealText} sealFont={ff("envelope_seal")} hint={tx("envelope_hint")} hintFont={ff("envelope_hint")} />
-      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-        <defs>
-          <filter id="ol-deckle"><feTurbulence type="fractalNoise" baseFrequency="0.013 0.017" numOctaves="3" seed="7" result="t" /><feDisplacementMap in="SourceGraphic" in2="t" scale="7" xChannelSelector="R" yChannelSelector="G" /></filter>
-          <filter id="ol-deckle2"><feTurbulence type="fractalNoise" baseFrequency="0.011 0.015" numOctaves="3" seed="22" result="t" /><feDisplacementMap in="SourceGraphic" in2="t" scale="6" xChannelSelector="R" yChannelSelector="G" /></filter>
-        </defs>
-      </svg>
 
-      <div style={{ width: "100%", maxWidth: 452, position: "relative", backgroundColor: T.paper, boxShadow: "0 0 80px rgba(60,62,52,.3)", overflow: "hidden" }}>
+      <div style={{ width: "100%", maxWidth: 452, position: "relative", backgroundColor: T.cream, boxShadow: "0 0 80px rgba(36,48,33,.22)", overflow: "hidden" }}>
 
-        {/* ============ 1 · PORTADA ============ */}
-        <section style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", padding: "0 32px 52px", textAlign: "center" }}>
-          <div style={{ position: "relative", width: "calc(100% + 64px)", margin: "0 -32px", height: 600, overflow: "hidden", WebkitMaskImage: "linear-gradient(#000 80%,transparent)", maskImage: "linear-gradient(#000 80%,transparent)" }}>
-            <div style={{ position: "absolute", inset: "-8% 0", backgroundImage: `url('${coverUrl}')`, backgroundSize: "cover", backgroundPosition: "center 30%", filter: "saturate(.72) contrast(1.03) brightness(.95)" }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(74,90,105,.34),rgba(74,74,66,.06) 42%,rgba(245,240,230,0) 80%)" }} />
-          </div>
-
-          <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", marginTop: -66 }}>
-            <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", width: 150, top: 30, left: -58, opacity: 0.6, transform: "rotate(-18deg)", pointerEvents: "none", zIndex: 0 }} />
-            <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", width: 150, bottom: -30, right: -56, opacity: 0.5, transform: "rotate(14deg) scaleX(-1)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "relative", zIndex: 1, fontFamily: ff("cover_intro"), fontWeight: 500, fontSize: 11, letterSpacing: "0.34em", textTransform: "uppercase", color: "#6F6A58", lineHeight: 1.7, marginBottom: 14, whiteSpace: "pre-line" }}>{tx("cover_intro")}</div>
-            <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 80, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerA || "Los novios"}</div>
-            {partnerB && (
-              <>
-                <div style={{ position: "relative", zIndex: 1, fontFamily: SCRIPT, fontSize: 34, color: T.gold, lineHeight: 0.7, margin: "2px 0" }}>&amp;</div>
-                <div style={{ position: "relative", zIndex: 1, fontFamily: ff("couple_name"), fontSize: 80, lineHeight: 1.1, paddingBottom: 4, color: T.navy, overflowWrap: "anywhere", maxWidth: "100%" }}>{partnerB}</div>
-              </>
+        {/* ============ 1 · PORTADA (foto a sangre) ============ */}
+        <section style={{ position: "relative", height: "clamp(540px, 82vh, 680px)", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, backgroundImage: `url('${coverUrl}')`, backgroundSize: "cover", backgroundPosition: "center 32%", filter: "saturate(.82) contrast(1.04)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(26,36,24,.42) 0%, rgba(26,36,24,.10) 34%, rgba(26,36,24,.30) 62%, rgba(26,36,24,.80) 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", textAlign: "center", padding: "0 28px 54px" }}>
+            {tx("cover_intro") && (
+              <div style={{ fontFamily: ff("cover_intro"), fontSize: 9.5, fontWeight: 400, letterSpacing: "0.26em", textTransform: "uppercase", lineHeight: 2, color: "rgba(247,245,238,.9)", maxWidth: 300, marginBottom: 18, textWrap: "balance", whiteSpace: "pre-line" }}>
+                {tx("cover_intro")}
+              </div>
             )}
-            <Divider />
-            {dateText && <div style={{ fontFamily: ff("cover_date"), fontWeight: 600, fontSize: 17, letterSpacing: "0.3em", textTransform: "uppercase", color: T.blue, marginTop: 18 }}>{dateText}</div>}
-            {timeText && <div style={{ fontFamily: ff("cover_time"), fontWeight: 600, fontSize: 14, letterSpacing: "0.24em", textTransform: "uppercase", color: T.blue, marginTop: 7 }}>{timeText}</div>}
+            <div style={{ ...titleFont("couple_name"), fontSize: 52, lineHeight: 1.1, color: "#FBFAF6", textShadow: "0 2px 24px rgba(20,28,18,.45)", overflowWrap: "anywhere", maxWidth: "100%", textWrap: "balance" }}>
+              {partnerB ? `${partnerA} & ${partnerB}` : (partnerA || "Los novios")}
+            </div>
+            <Rule color="rgba(247,245,238,.34)" width={40} margin="20px auto 16px" />
+            {dateText && (
+              <div style={{ fontFamily: ff("cover_date"), fontSize: 11, fontWeight: 400, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(247,245,238,.94)" }}>{dateText}</div>
+            )}
+            {timeText && (
+              <div style={{ fontFamily: ff("cover_time"), fontSize: 10.5, fontWeight: 400, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(247,245,238,.8)", marginTop: 7 }}>{timeText}</div>
+            )}
             {(venueName || cityLine) && (
-              <div style={{ fontFamily: ff("cover_venue"), fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: T.soft, marginTop: 11, lineHeight: 1.7 }}>
+              <div style={{ fontFamily: ff("cover_venue"), fontSize: 9.5, fontWeight: 300, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(247,245,238,.7)", marginTop: 12, lineHeight: 1.8 }}>
                 {[venueName, cityLine].filter(Boolean).join(" · ")}
               </div>
             )}
@@ -458,246 +472,201 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
         </section>
 
         {/* ============ 2 · SALUDO ============ */}
-        <section style={{ position: "relative", padding: "34px 30px 52px" }}>
-          <div style={{ position: "relative", padding: 3 }}>
-            <div style={{ position: "absolute", inset: 0, background: T.paper2, filter: "url(#ol-deckle)", boxShadow: "0 16px 36px rgba(74,74,66,.13)" }} />
-            <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", top: -40, right: -30, width: 130, opacity: 0.62, transform: "rotate(12deg)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "relative", padding: "42px 30px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: ff("greeting_intro"), fontSize: 10, letterSpacing: "0.32em", textTransform: "uppercase", color: T.soft, marginBottom: 18 }}>{tx("greeting_intro")}</div>
-              <div style={{ fontFamily: ff("guest_name"), fontSize: 54, lineHeight: 1.12, paddingBottom: 4, color: T.navy }}>{guestName}</div>
-              <p style={{ fontFamily: ff("passes_text"), fontSize: 11.5, letterSpacing: "0.1em", lineHeight: 1.7, color: T.goldDark, margin: "16px auto 0", maxWidth: 280, textWrap: "pretty", whiteSpace: "pre-line" }}>
-                {tx("passes_text").replace(/\{n\}/g, maxGuests)}
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 14 }}>
-                {tableLabel && (
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", border: "1px solid rgba(78,102,121,.35)", borderRadius: 40, background: "rgba(111,138,163,.1)" }}>
-                    <span style={{ width: 5, height: 5, background: T.blue, transform: "rotate(45deg)" }} />
-                    <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.16em", textTransform: "uppercase", color: T.navy }}>Mesa {tableLabel}</span>
-                  </div>
-                )}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 9, margin: "22px 0" }}>
-                <span style={{ width: 28, height: 1, background: "rgba(78,102,121,.3)" }} />
-                <span style={{ width: 4, height: 4, background: T.sage, transform: "rotate(45deg)" }} />
-                <span style={{ width: 28, height: 1, background: "rgba(78,102,121,.3)" }} />
-              </div>
-              <p style={{ fontFamily: ff("main_message"), fontSize: 12.5, lineHeight: 1.9, color: T.soft, margin: 0, textWrap: "pretty", whiteSpace: "pre-line" }}>{mainMessage}</p>
+        <section style={{ ...secCream, textAlign: "center" }}>
+          <div style={{ fontFamily: ff("greeting_intro"), ...label({ fontSize: 9.5, color: T.muted }), marginBottom: 20 }}>{tx("greeting_intro")}</div>
+          <div style={{ ...titleFont("guest_name"), fontSize: 40, lineHeight: 1.2, color: T.ink, overflowWrap: "anywhere", textWrap: "balance" }}>{guestName}</div>
+
+          <p style={{ fontFamily: ff("passes_text"), fontSize: 11, fontWeight: 400, letterSpacing: "0.08em", lineHeight: 1.9, color: T.accent, margin: "18px auto 0", maxWidth: 280, textWrap: "pretty", whiteSpace: "pre-line" }}>
+            {tx("passes_text").replace(/\{n\}/g, maxGuests)}
+          </p>
+          {tableLabel && (
+            <div style={{ display: "inline-block", marginTop: 12, padding: "6px 16px", border: `1px solid ${T.line}`, borderRadius: 2, ...label({ fontSize: 9, color: T.inkSoft }) }}>
+              Mesa {tableLabel}
             </div>
-          </div>
+          )}
+
+          <Rule margin="28px auto" />
+
+          <p style={{ ...bodyText(), fontFamily: ff("main_message"), margin: "0 auto", maxWidth: 330 }}>{mainMessage}</p>
         </section>
 
         {/* ============ 3 · CUENTA REGRESIVA ============ */}
-        <section style={{ position: "relative", overflow: "hidden", padding: "54px 30px 58px", background: "linear-gradient(180deg,rgba(111,138,163,.07),rgba(111,138,163,.14))", borderTop: "1px solid rgba(78,102,121,.12)", borderBottom: "1px solid rgba(78,102,121,.12)" }}>
-          <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", bottom: -34, left: -46, width: 140, opacity: 0.5, transform: "rotate(-14deg)", pointerEvents: "none", zIndex: 0 }} />
-          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-            <div style={{ fontFamily: ff("countdown_script"), fontSize: 44, color: T.sage, lineHeight: 1.25, paddingBottom: 4 }}>{tx("countdown_script")}</div>
-            <div style={{ fontFamily: ff("countdown_label"), fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", color: T.soft, fontWeight: 500, margin: "10px 0 26px" }}>{tx("countdown_label")}</div>
-            <Countdown iso={eventISO} />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 28 }}>
-              <span style={{ width: 32, height: 1, background: "linear-gradient(90deg,transparent,#C2A878)" }} />
-              <span style={{ width: 5, height: 5, background: T.gold, transform: "rotate(45deg)" }} />
-              <span style={{ width: 32, height: 1, background: "linear-gradient(90deg,#C2A878,transparent)" }} />
-            </div>
-            {longDate && <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 14, letterSpacing: "0.24em", textTransform: "uppercase", color: T.navy, marginTop: 18 }}>{longDate}</div>}
-          </div>
+        <section style={{ ...secGreen, textAlign: "center" }}>
+          <div style={{ ...titleFont("countdown_script"), fontSize: 34, lineHeight: 1.2, color: T.onGreen }}>{tx("countdown_script")}</div>
+          <div style={{ fontFamily: ff("countdown_label"), ...label({ fontSize: 9, color: T.onGreenSoft }), margin: "12px 0 34px" }}>{tx("countdown_label")}</div>
+          <Countdown iso={eventISO} />
+          {longDate && (
+            <>
+              <Rule color={T.lineOn} margin="34px auto 18px" />
+              <div style={label({ fontSize: 10, letterSpacing: "0.24em", color: "rgba(237,234,224,.8)" })}>{longDate}</div>
+            </>
+          )}
         </section>
 
         {/* ============ 4 · CELEBRACIÓN / UBICACIÓN ============ */}
-        <section style={{ position: "relative", padding: "58px 30px 60px", overflow: "hidden" }}>
-          <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", top: 20, left: -50, width: 150, opacity: 0.5, transform: "rotate(-12deg)", pointerEvents: "none", zIndex: 0 }} />
-          <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", bottom: 24, right: -52, width: 150, opacity: 0.55, transform: "rotate(18deg) scaleX(-1)", pointerEvents: "none", zIndex: 0 }} />
-          <div style={{ position: "relative" }}>
-            <SectionTitle script={tx("venue_script")} caps={tx("venue_title")} scriptFont={ff("venue_script")} capsFont={ff("venue_title")} />
-            <p style={{ textAlign: "center", fontFamily: ff("venue_text"), fontSize: 12.5, lineHeight: 1.9, color: T.soft, margin: "0 auto 30px", maxWidth: 330, textWrap: "pretty", whiteSpace: "pre-line" }}>
-              {tx("venue_text")}
-            </p>
-            <div style={{ background: T.paper2, borderRadius: 3, overflow: "hidden", boxShadow: "0 14px 32px rgba(74,74,66,.12)" }}>
-              {mapEmbedUrl ? (
-                <iframe
-                  title="Mapa de la ubicación"
-                  src={mapEmbedUrl}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  style={{ display: "block", width: "100%", height: 200, border: 0, filter: "saturate(.88) contrast(1.02)" }}
-                />
-              ) : (
-                <div style={{ position: "relative", height: 150, overflow: "hidden", background: "linear-gradient(135deg,#8b9fae,#a7b1a0)" }}>
-                  <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 11px,rgba(0,0,0,.04) 11px 22px)" }} />
-                  <div style={{ position: "absolute", top: 46, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div style={{ width: 30, height: 30, borderRadius: "50% 50% 50% 0", background: T.gold, transform: "rotate(-45deg)", boxShadow: "0 6px 12px rgba(120,93,52,.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ width: 10, height: 10, background: T.paper2, borderRadius: "50%", transform: "rotate(45deg)" }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div style={{ padding: "24px 24px 26px", textAlign: "center" }}>
-                <div style={{ fontFamily: SCRIPT, fontSize: 42, color: T.navy, lineHeight: 1, paddingBottom: 3 }}>{venueName || "Nuestro lugar"}</div>
-                {cityLine && <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.12em", color: T.soft, margin: "8px 0 18px", lineHeight: 1.6 }}>{cityLine}</div>}
-                {mapUrl && (
-                  <a href={mapUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "12px 26px", border: "1px solid rgba(78,102,121,.4)", borderRadius: 40, textDecoration: "none", background: "rgba(111,138,163,.07)" }}>
-                    <span style={{ width: 6, height: 6, background: T.blue, transform: "rotate(45deg)" }} />
-                    <span style={{ fontFamily: ff("venue_button"), fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: T.navy, fontWeight: 600 }}>{tx("venue_button")}</span>
-                  </a>
-                )}
-              </div>
-            </div>
+        <section style={{ position: "relative", background: T.cream, paddingTop: 76 }}>
+          <div style={{ padding: "0 34px", textAlign: "center" }}>
+            <SectionTitle a="venue_script" b="venue_title" />
+            <p style={{ ...bodyText(), fontFamily: ff("venue_text"), margin: "18px auto 40px", maxWidth: 320 }}>{tx("venue_text")}</p>
+          </div>
+
+          {/* mapa a sangre */}
+          {mapEmbedUrl ? (
+            <iframe
+              title="Mapa de la ubicación"
+              src={mapEmbedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              style={{ display: "block", width: "100%", height: 236, border: 0, filter: "saturate(.72) contrast(1.02)" }}
+            />
+          ) : (
+            <div style={{ height: 180, background: "linear-gradient(135deg,#3E4A38,#6E7A5E)" }} />
+          )}
+
+          <div style={{ padding: "34px 34px 80px", textAlign: "center" }}>
+            <div style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 30, lineHeight: 1.2, color: T.ink }}>{venueName || "Nuestro lugar"}</div>
+            {cityLine && <div style={{ ...label({ fontSize: 9.5, color: T.muted }), marginTop: 10 }}>{cityLine}</div>}
+            {mapUrl && (
+              <a href={mapUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 24, padding: "13px 30px", border: `1px solid ${T.ink}`, borderRadius: 2, textDecoration: "none", fontFamily: ff("venue_button"), ...label({ fontSize: 9.5, letterSpacing: "0.24em", color: T.ink }) }}>
+                {tx("venue_button")}
+              </a>
+            )}
           </div>
         </section>
 
         {/* ============ 5 · CÓDIGO DE VESTIMENTA ============ */}
         {showDressCode && (
-          <section style={{ position: "relative", overflow: "hidden", padding: "56px 30px 58px", background: "linear-gradient(180deg,rgba(111,138,163,.06),rgba(111,138,163,.12))", borderTop: "1px solid rgba(78,102,121,.12)", borderBottom: "1px solid rgba(78,102,121,.12)" }}>
-            <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", top: -30, right: -46, width: 140, opacity: 0.45, transform: "rotate(20deg)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-              <SectionTitle script={tx("dress_script")} caps={tx("dress_title")} scriptFont={ff("dress_script")} capsFont={ff("dress_title")} />
-              <div style={{ fontFamily: ff("dress_value"), fontWeight: 800, fontSize: 34, letterSpacing: "0.04em", textTransform: "uppercase", color: T.blue, lineHeight: 1.05 }}>{dressCodeText}</div>
-              <p style={{ fontFamily: ff("dress_text"), fontSize: 12.5, color: T.soft, lineHeight: 1.85, margin: "16px auto 30px", maxWidth: 300, textWrap: "pretty", whiteSpace: "pre-line" }}>
-                {tx("dress_text")}
-              </p>
-              <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-                {DRESS_PALETTE.map((p) => (
-                  <div key={p.n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 9 }}>
-                    <span style={{ width: 50, height: 50, borderRadius: "50%", background: p.c, border: p.border ? "1px solid rgba(176,141,82,.25)" : "none", boxShadow: "0 6px 14px rgba(90,100,95,.28),inset 0 2px 5px rgba(255,255,255,.3)" }} />
-                    <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: "0.12em", textTransform: "uppercase", color: T.soft }}>{p.n}</span>
-                  </div>
-                ))}
-              </div>
-              {showKidsPolicy && (
-                <p style={{ fontFamily: MONO, fontSize: 11, color: T.soft, letterSpacing: "0.06em", marginTop: 26 }}>{kidsPolicyText}</p>
-              )}
+          <section style={{ ...secGreen, textAlign: "center" }}>
+            <SectionTitle a="dress_script" b="dress_title" color={T.onGreen} />
+            <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onGreen, margin: "22px 0 0" }}>{dressCodeText}</div>
+            <p style={{ ...bodyText(true), fontFamily: ff("dress_text"), margin: "16px auto 34px", maxWidth: 300 }}>{tx("dress_text")}</p>
+            {/* grid de 5 columnas: siempre en una sola fila, la etiqueta envuelve debajo */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, maxWidth: 330, margin: "0 auto" }}>
+              {DRESS_PALETTE.map((p) => (
+                <div key={p.n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 0 }}>
+                  <span style={{ width: 42, height: 42, borderRadius: "50%", background: p.c, boxShadow: "0 0 0 1px rgba(237,234,224,.34)", flex: "none" }} />
+                  <span style={label({ fontSize: 7.5, letterSpacing: "0.1em", color: T.onGreenSoft, lineHeight: 1.6 })}>{p.n}</span>
+                </div>
+              ))}
             </div>
+            {showKidsPolicy && (
+              <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 300, color: T.onGreenSoft, letterSpacing: "0.06em", marginTop: 30 }}>{kidsPolicyText}</p>
+            )}
           </section>
         )}
 
         {/* ============ 6 · MESA DE REGALOS ============ */}
         {(showGifts || showBank) && (
-          <section style={{ position: "relative", overflow: "hidden", padding: "56px 30px 58px" }}>
-            <img src={ASSET("flor-azul.png")} alt="" style={{ position: "absolute", top: 40, left: -54, width: 140, opacity: 0.45, transform: "rotate(-20deg) scaleX(-1)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <SectionTitle script={tx("gifts_script")} caps={tx("gifts_title")} scriptFont={ff("gifts_script")} capsFont={ff("gifts_title")} />
-              <p style={{ textAlign: "center", fontFamily: MONO, fontSize: 12.5, color: T.soft, lineHeight: 1.85, margin: "0 auto 28px", maxWidth: 310, textWrap: "pretty", whiteSpace: "pre-line" }}>{giftsMessage}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {showGifts && giftUrl1 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, background: T.paper2, borderRadius: 3, padding: "20px 22px", boxShadow: "0 10px 26px rgba(74,74,66,.1)" }}>
-                    <div style={{ width: 46, height: 46, borderRadius: "50%", background: "rgba(111,138,163,.12)", border: "1px solid rgba(78,102,121,.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.navy} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8 H19 L18 20 H6 Z" /><path d="M8.5 8 V6.5 A3.5 3.5 0 0 1 15.5 6.5 V8" /></svg>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{giftLabel1}</div>
-                    </div>
-                    <a href={giftUrl1} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", fontFamily: ff("gifts_link"), fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, whiteSpace: "nowrap" }}>{tx("gifts_link")}</a>
+          <section style={{ ...secCream }}>
+            <SectionTitle a="gifts_script" b="gifts_title" />
+            <p style={{ ...bodyText(), fontFamily: SANS, textAlign: "center", margin: "18px auto 34px", maxWidth: 320 }}>{giftsMessage}</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {showGifts && giftUrl1 && (
+                <a href={giftUrl1} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, textDecoration: "none", background: T.cream2, border: `1px solid ${T.line}`, borderRadius: 2, padding: "20px 22px" }}>
+                  <span style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 19, color: T.ink }}>{giftLabel1}</span>
+                  <span style={{ fontFamily: ff("gifts_link"), ...label({ fontSize: 9, letterSpacing: "0.2em", color: T.accent }), whiteSpace: "nowrap" }}>{tx("gifts_link")} →</span>
+                </a>
+              )}
+              {showGifts && giftUrl2 && (
+                <a href={giftUrl2} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, textDecoration: "none", background: T.cream2, border: `1px solid ${T.line}`, borderRadius: 2, padding: "20px 22px" }}>
+                  <span style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 19, color: T.ink }}>{giftLabel2 || "Mesa de regalos 2"}</span>
+                  <span style={{ fontFamily: ff("gifts_link"), ...label({ fontSize: 9, letterSpacing: "0.2em", color: T.accent }), whiteSpace: "nowrap" }}>{tx("gifts_link")} →</span>
+                </a>
+              )}
+              {showBank && (
+                <div style={{ background: T.cream2, border: `1px solid ${T.line}`, borderRadius: 2, padding: "22px 22px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 14 }}>
+                    <span style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 19, color: T.ink }}>{bankName || "Transferencia"}</span>
+                    <span onClick={copyBank} style={{ ...label({ fontSize: 9, letterSpacing: "0.2em", color: T.accent }), cursor: "pointer", whiteSpace: "nowrap" }}>{copied ? "✓ Copiado" : "Copiar"}</span>
                   </div>
-                )}
-                {showGifts && giftUrl2 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, background: T.paper2, borderRadius: 3, padding: "20px 22px", boxShadow: "0 10px 26px rgba(74,74,66,.1)" }}>
-                    <div style={{ width: 46, height: 46, borderRadius: "50%", background: "rgba(176,141,82,.14)", border: "1px solid rgba(176,141,82,.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.goldDark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9 L12 4 L20 9" /><path d="M5 9 V19 H19 V9" /><line x1="3" y1="19" x2="21" y2="19" /></svg>
+                  <div style={{ height: 1, background: T.line, margin: "14px 0" }} />
+                  {bankHolder && (
+                    <div style={{ display: "flex", gap: 10, marginBottom: 7 }}>
+                      <span style={label({ fontSize: 8.5, color: T.muted, flex: "none", minWidth: 58 })}>Titular</span>
+                      <span style={{ fontFamily: SANS, fontSize: 12, fontWeight: 400, color: T.inkSoft, overflowWrap: "anywhere" }}>{bankHolder}</span>
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{giftLabel2 || "Mesa de regalos 2"}</div>
-                    </div>
-                    <a href={giftUrl2} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", fontFamily: ff("gifts_link"), fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, whiteSpace: "nowrap" }}>{tx("gifts_link")}</a>
+                  )}
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <span style={label({ fontSize: 8.5, color: T.muted, flex: "none", minWidth: 58 })}>CLABE</span>
+                    <span style={{ fontFamily: SANS, fontSize: 12, fontWeight: 400, color: T.inkSoft, letterSpacing: "0.04em", overflowWrap: "anywhere" }}>{bankAccount}</span>
                   </div>
-                )}
-                {showBank && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, background: T.paper2, borderRadius: 3, padding: "20px 22px", boxShadow: "0 10px 26px rgba(74,74,66,.1)" }}>
-                    <div style={{ width: 46, height: 46, borderRadius: "50%", background: "rgba(176,141,82,.14)", border: "1px solid rgba(176,141,82,.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.goldDark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9 L12 4 L20 9" /><path d="M5 9 V19 H19 V9" /><line x1="3" y1="19" x2="21" y2="19" /><line x1="12" y1="12" x2="12" y2="16" /></svg>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: SERIF, fontSize: 17, fontWeight: 700, color: T.navy, lineHeight: 1.2, letterSpacing: "0.02em" }}>{bankName || "Transferencia"}</div>
-                      {bankHolder && <div style={{ fontFamily: MONO, fontSize: 10, color: T.soft, marginTop: 4, letterSpacing: "0.04em" }}>Titular: {bankHolder}</div>}
-                      <div style={{ fontFamily: MONO, fontSize: 10, color: T.soft, marginTop: 3, letterSpacing: "0.04em", overflowWrap: "anywhere" }}>CLABE: {bankAccount}</div>
-                    </div>
-                    <span onClick={copyBank} style={{ fontFamily: SERIF, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: T.goldDark, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{copied ? "✓ Copiado" : "Copiar"}</span>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </section>
         )}
 
-        {/* ============ 7 · GALERÍA ============ */}
+        {/* ============ 7 · GALERÍA (fotos a sangre) ============ */}
         {gallery.length > 0 && (
-          <section style={{ position: "relative", overflow: "hidden", padding: "56px 26px 58px", background: "linear-gradient(180deg,rgba(147,160,127,.07),rgba(111,138,163,.1))", borderTop: "1px solid rgba(147,160,127,.16)", borderBottom: "1px solid rgba(78,102,121,.12)" }}>
-            <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", bottom: -30, right: -50, width: 150, opacity: 0.45, transform: "rotate(14deg)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div style={{ marginBottom: 28 }}>
-                <SectionTitle script={tx("gallery_script")} caps={tx("gallery_title")} scriptFont={ff("gallery_script")} capsFont={ff("gallery_title")} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridAutoRows: 118, gap: 9 }}>
-                {gallery.map((src, i) => {
-                  // posiciones: 0 = alto (span 2), 3 = ancho (span 2)
-                  const span = i === 0 ? { gridRow: "span 2" } : i === 3 ? { gridColumn: "span 2" } : {};
-                  return (
-                    <div key={i} style={{ ...span, position: "relative", borderRadius: 2, overflow: "hidden", boxShadow: "0 5px 14px rgba(70,80,95,.14)" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                  );
-                })}
-              </div>
+          <section style={{ position: "relative", background: T.green }}>
+            <div style={{ padding: "62px 34px 34px", textAlign: "center" }}>
+              <SectionTitle a="gallery_script" b="gallery_title" color={T.onGreen} size={34} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridAutoRows: 148, gap: 3 }}>
+              {gallery.map((src, i) => {
+                // posiciones: 0 = alto (span 2), 3 = ancho (span 2)
+                const span = i === 0 ? { gridRow: "span 2" } : i === 3 ? { gridColumn: "span 2" } : {};
+                return (
+                  <div key={i} style={{ ...span, position: "relative", overflow: "hidden" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(.86)" }} />
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}
 
         {/* ============ 8 · RSVP ============ */}
-        <section style={{ position: "relative", padding: "58px 30px 70px", overflow: "hidden" }}>
-          <img src={ASSET("flor-seca.png")} alt="" style={{ position: "absolute", top: 0, right: -44, width: 135, opacity: 0.5, transform: "rotate(16deg)", pointerEvents: "none", zIndex: 0 }} />
-          <div style={{ position: "relative" }}>
-            <div style={{ textAlign: "center", marginBottom: 26 }}>
-              <div style={{ fontFamily: ff("rsvp_title"), fontSize: 48, color: T.sage, lineHeight: 1.3, paddingBottom: 6 }}>{tx("rsvp_title")}</div>
-            </div>
-            <div style={{ position: "relative", padding: 3 }}>
-              <div style={{ position: "absolute", inset: 0, background: T.paper2, filter: "url(#ol-deckle2)", boxShadow: "0 16px 38px rgba(74,74,66,.14)" }} />
-              <div style={{ position: "relative", padding: "34px 26px 36px" }}>
-                {!confirmed ? (
-                  <>
-                    <div style={{ textAlign: "center", fontFamily: MONO, fontSize: 12.5, color: T.soft, lineHeight: 1.75, marginBottom: 24 }}>
-                      {rsvpDeadline || "Confírmanos tu asistencia, por favor."}
-                    </div>
-                    <div style={{ fontFamily: ff("rsvp_question"), fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: T.soft, fontWeight: 600, marginBottom: 11, textAlign: "center" }}>{tx("rsvp_question")}</div>
-                    <div style={{ display: "flex", gap: 12, marginBottom: yes ? 18 : 26 }}>
-                      <div onClick={() => setAttending(true)} style={{ ...segBase, fontFamily: ff("rsvp_yes"), ...(yes ? { background: T.sage, color: T.paper, boxShadow: "0 7px 16px rgba(120,140,105,.3)" } : { background: "transparent", color: T.soft, border: "1px solid rgba(78,102,121,.25)" }) }}>{tx("rsvp_yes")}</div>
-                      <div onClick={() => setAttending(false)} style={{ ...segBase, fontFamily: ff("rsvp_no"), ...(no ? { background: T.soft, color: T.paper, boxShadow: "0 7px 16px rgba(80,76,62,.3)" } : { background: "transparent", color: T.soft, border: "1px solid rgba(78,102,121,.25)" }) }}>{tx("rsvp_no")}</div>
-                    </div>
-
-                    {yes && maxGuests > 1 && (
-                      <div style={{ marginBottom: 26, textAlign: "center" }}>
-                        <div style={{ fontFamily: ff("rsvp_count"), fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: T.soft, fontWeight: 600, marginBottom: 11 }}>{tx("rsvp_count")}</div>
-                        <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
-                          {passOptions.map((n) => (
-                            <div key={n} onClick={() => setPartySize(n)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontFamily: SERIF, fontSize: 15, fontWeight: 600, transition: "all .2s ease", ...(partySize === n ? { background: T.navy, color: T.paper } : { background: "transparent", color: T.soft, border: "1px solid rgba(78,102,121,.3)" }) }}>{n}</div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {errMsg && <div style={{ textAlign: "center", color: "#b04a3e", fontFamily: MONO, fontSize: 11, marginBottom: 14 }}>{errMsg}</div>}
-
-                    <div onClick={() => !busy && submitRSVP()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 11, width: "100%", padding: "17px 0", borderRadius: 3, background: "linear-gradient(180deg,#c2a06a,#B08D52)", color: T.paper2, fontFamily: ff("rsvp_submit"), fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", boxShadow: "0 11px 24px rgba(150,120,75,.32)", ...(attending === null || busy ? { opacity: 0.45, pointerEvents: "none", boxShadow: "none" } : {}) }}>
-                      <span style={{ width: 7, height: 7, background: T.paper2, transform: "rotate(45deg)" }} />
-                      {busy ? "Enviando…" : tx("rsvp_submit")}
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "14px 4px 8px" }}>
-                    <div style={{ width: 74, height: 74, margin: "0 auto 22px", borderRadius: "50%", background: "radial-gradient(circle at 36% 30%,#d6b87f,#B08D52 46%,#8a6d3e)", boxShadow: "inset 0 2px 6px rgba(255,247,232,.4),inset 0 -6px 11px rgba(78,57,28,.4),0 9px 20px rgba(120,93,52,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={T.paper2} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        {attending ? <path d="M5 12.5 L10 17.5 L19 6.5" /> : <path d="M6 6 L18 18 M18 6 L6 18" />}
-                      </svg>
-                    </div>
-                    <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 24, letterSpacing: "0.06em", textTransform: "uppercase", color: T.navy, lineHeight: 1.1 }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
-                    <div style={{ fontFamily: SCRIPT, fontSize: 38, color: T.sage, margin: "4px 0 16px", lineHeight: 1.2, paddingBottom: 4 }}>con todo el corazón</div>
-                    <p style={{ fontFamily: ff(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no"), fontSize: 12.5, lineHeight: 1.85, color: T.soft, margin: "0 0 22px", textWrap: "pretty", whiteSpace: "pre-line" }}>
-                      {tx(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no")}
-                    </p>
-                    <div onClick={() => setConfirmed(false)} style={{ display: "inline-flex", alignItems: "center", gap: 9, cursor: "pointer", fontFamily: SERIF, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: T.goldDark, fontWeight: 600, borderBottom: "1px solid rgba(138,109,62,.4)", paddingBottom: 3 }}>Modificar mi respuesta</div>
-                  </div>
-                )}
+        <section style={{ ...secCream, paddingBottom: 92 }}>
+          {!confirmed ? (
+            <>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ ...titleFont("rsvp_title"), fontSize: 40, lineHeight: 1.18, color: T.ink, textWrap: "balance" }}>{tx("rsvp_title")}</div>
+                <p style={{ ...bodyText(), fontSize: 12.5, margin: "16px auto 34px", maxWidth: 310 }}>
+                  {rsvpDeadline || "Confírmanos tu asistencia, por favor."}
+                </p>
               </div>
+
+              <div style={{ fontFamily: ff("rsvp_question"), ...label({ fontSize: 9, color: T.muted }), textAlign: "center", marginBottom: 14 }}>{tx("rsvp_question")}</div>
+              <div style={{ display: "flex", gap: 10, marginBottom: yes ? 24 : 30 }}>
+                <div onClick={() => setAttending(true)} style={{ ...segBase, fontFamily: ff("rsvp_yes"), ...(yes ? { background: T.green, color: T.onGreen, border: `1px solid ${T.green}` } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{tx("rsvp_yes")}</div>
+                <div onClick={() => setAttending(false)} style={{ ...segBase, fontFamily: ff("rsvp_no"), ...(no ? { background: T.muted, color: T.cream, border: `1px solid ${T.muted}` } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{tx("rsvp_no")}</div>
+              </div>
+
+              {yes && maxGuests > 1 && (
+                <div style={{ marginBottom: 30, textAlign: "center" }}>
+                  <div style={{ fontFamily: ff("rsvp_count"), ...label({ fontSize: 9, color: T.muted }), marginBottom: 14 }}>{tx("rsvp_count")}</div>
+                  <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+                    {passOptions.map((n) => (
+                      <div key={n} onClick={() => setPartySize(n)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontFamily: DISPLAY, fontSize: 16, transition: "all .2s ease", ...(partySize === n ? { background: T.green, color: T.onGreen } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{n}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {errMsg && <div style={{ textAlign: "center", color: "#9c4a3c", fontFamily: SANS, fontSize: 11.5, marginBottom: 16 }}>{errMsg}</div>}
+
+              <div onClick={() => !busy && submitRSVP()} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "18px 0", borderRadius: 2, background: T.green, color: T.onGreen, fontFamily: ff("rsvp_submit"), fontSize: 10.5, fontWeight: 500, letterSpacing: "0.26em", textTransform: "uppercase", cursor: "pointer", ...(attending === null || busy ? { opacity: 0.35, pointerEvents: "none" } : {}) }}>
+                {busy ? "Enviando…" : tx("rsvp_submit")}
+              </div>
+            </>
+          ) : (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: 64, height: 64, margin: "0 auto 26px", borderRadius: "50%", border: `1px solid ${T.accent}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  {attending ? <path d="M5 12.5 L10 17.5 L19 6.5" /> : <path d="M6 6 L18 18 M18 6 L6 18" />}
+                </svg>
+              </div>
+              <div style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 38, lineHeight: 1.18, color: T.ink }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
+              <Rule margin="22px auto" />
+              <p style={{ ...bodyText(), fontFamily: ff(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no"), margin: "0 auto 26px", maxWidth: 310 }}>
+                {tx(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no")}
+              </p>
+              <div onClick={() => setConfirmed(false)} style={{ display: "inline-block", cursor: "pointer", ...label({ fontSize: 9, color: T.accent }), borderBottom: `1px solid ${T.accent}`, paddingBottom: 4 }}>Modificar mi respuesta</div>
             </div>
-          </div>
+          )}
         </section>
 
       </div>
