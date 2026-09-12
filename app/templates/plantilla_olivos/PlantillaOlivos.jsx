@@ -13,7 +13,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { rsvpDeadlineText, localeOf, wallClockISO, eventTimeText } from "@/lib/dashboard/utils";
-import { resolveFont, fontKind, googleFontsHref } from "@/lib/templates/fonts";
+import { resolveFont, fontKind, googleFontsHref, fontFaceCss } from "@/lib/templates/fonts";
 import { OLIVOS_SLOT_MAP } from "./content";
 
 const ASSET = (n) => `/template/plantilla_olivos/${n}`;
@@ -35,6 +35,8 @@ const T = {
 };
 const DISPLAY = "'Playfair Display',serif";
 const SANS = "'Jost',sans-serif";
+// Cursiva propia, para los momentos expresivos que no salen de un slot.
+const SCRIPT_FACE = "'Romance Dream',cursive";
 
 // Paleta de vestimenta (fija para esta plantilla).
 // Nota: el tono más oscuro se aclara respecto al verde de la sección para que
@@ -287,11 +289,13 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
     fontFamily: ff(key),
     fontStyle: fontKind(fontKeyOf(key)) === "script" ? "normal" : "italic",
   });
-  // URL de Google Fonts: base de la plantilla + cualquier fuente personalizada.
-  const fontsHref = useMemo(() => {
-    const base = ["playfair", "jost", "cormorant"];
+  // Fuentes en uso: base de la plantilla + cualquier personalizada del evento.
+  // Las de Google entran por <link>; las propias como @font-face.
+  const { fontsHref, faceCss } = useMemo(() => {
+    const base = ["playfair", "jost", "cormorant", "romanceDream"];
     const overrides = Object.values(cz).map((o) => o?.font).filter(Boolean);
-    return googleFontsHref([...base, ...overrides]);
+    const keys = [...base, ...overrides];
+    return { fontsHref: googleFontsHref(keys), faceCss: fontFaceCss(keys) };
   }, [event?.customization]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── datos ──────────────────────────────────────────────────────────────
@@ -437,6 +441,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   return (
     <div style={{ minHeight: "100vh", background: "#E6E3DA", display: "flex", justifyContent: "center", fontFamily: SANS, color: T.ink, WebkitFontSmoothing: "antialiased" }}>
       {fontsHref && <link rel="stylesheet" href={fontsHref} />}
+      {faceCss && <style>{faceCss}</style>}
 
       {/* Intro: sobre sellado que se abre como carta */}
       <EnvelopeIntro sealText={sealText} sealFont={ff("envelope_seal")} hint={tx("envelope_hint")} hintFont={ff("envelope_hint")} />
@@ -659,7 +664,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                   {attending ? <path d="M5 12.5 L10 17.5 L19 6.5" /> : <path d="M6 6 L18 18 M18 6 L6 18" />}
                 </svg>
               </div>
-              <div style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 38, lineHeight: 1.18, color: T.ink }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
+              <div style={{ fontFamily: SCRIPT_FACE, fontSize: 40, lineHeight: 1.18, color: T.ink }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
               <Rule margin="22px auto" />
               <p style={{ ...bodyText(), fontFamily: ff(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no"), margin: "0 auto 26px", maxWidth: 310 }}>
                 {tx(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no")}
