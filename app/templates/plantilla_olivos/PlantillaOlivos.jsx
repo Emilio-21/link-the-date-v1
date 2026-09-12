@@ -39,15 +39,20 @@ const SANS = "'Jost',sans-serif";
 // Cursiva propia, para los momentos expresivos que no salen de un slot.
 const SCRIPT_FACE = "'Romance Dream',cursive";
 
-// Paleta de vestimenta (fija para esta plantilla).
-// Nota: el tono más oscuro se aclara respecto al verde de la sección para que
-// el círculo no se pierda contra el fondo.
+// Paleta de vestimenta: 10 tonos en barras, del más claro al más oscuro.
+// Se muestran en dos filas de cinco; en una sola fila cada barra quedaría
+// demasiado angosta para leer su nombre en pantalla de celular.
 const DRESS_PALETTE = [
-  { c: "#38452F", n: "Verde bosque" },
-  { c: "#5C6B4E", n: "Oliva" },
-  { c: "#9CA189", n: "Salvia seca" },
-  { c: "#D6CFBD", n: "Arena" },
-  { c: "#F2EEE4", n: "Marfil" },
+  { c: "#E6DDC6", n: "Marfil cálido" },
+  { c: "#C8B8A3", n: "Arena suave" },
+  { c: "#B7B1A6", n: "Lino natural" },
+  { c: "#8A8F7A", n: "Olivo claro" },
+  { c: "#7D8DA6", n: "Azul polvoriento" },
+  { c: "#A08972", n: "Taupe suave" },
+  { c: "#7A5B47", n: "Marrón tostado" },
+  { c: "#615E5A", n: "Gris pizarra" },
+  { c: "#4A5A46", n: "Verde bosque" },
+  { c: "#3A3632", n: "Carbón suave" },
 ];
 
 // ── helpers de fecha / nombre ───────────────────────────────────────────────
@@ -332,6 +337,8 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const mapEmbedUrl = mapQuery
     ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
     : null;
+  // Ilustración del lugar: si está, ocupa el sitio del mapa.
+  const venueImage = tx("venue_image");
 
   const guestName = (guest?.name || "").trim() || "Invitado especial";
   const maxGuests = Math.max(1, Number(guest?.max_guests) || 1);
@@ -365,11 +372,15 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   const coverUrl = event?.cover_url || ASSET("portada.jpeg");
   const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean).slice(0, 10) : [];
 
-  // Foto que encabeza cada sección. Se reparten las de la galería en orden y,
-  // si hay menos fotos que secciones, se vuelven a usar (el recorte y el título
-  // encima hacen que no se note como repetición). Sin galería, cae a la portada.
-  const photoPool = gallery.length ? gallery : [coverUrl];
-  const secPhoto = (i) => photoPool[i % photoPool.length];
+  // Reparto de la galería: las 5 primeras fotos encabezan las secciones, en el
+  // orden en que aparecen (Celebración, Vestimenta, Regalos, Galería, RSVP), y
+  // las siguientes forman el mosaico. Así el anfitrión decide qué foto va en
+  // qué sección sólo ordenándolas en el dashboard, sin selector aparte.
+  // Si hay 5 o menos, se reciclan para los encabezados y el mosaico las repite.
+  const HEADER_PHOTOS = 5;
+  const headerPool = gallery.length ? gallery.slice(0, HEADER_PHOTOS) : [coverUrl];
+  const secPhoto = (i) => headerPool[i % headerPool.length];
+  const mosaic = gallery.length > HEADER_PHOTOS ? gallery.slice(HEADER_PHOTOS) : gallery;
 
   // ── RSVP ───────────────────────────────────────────────────────────────
   const [attending, setAttending] = useState(rsvp?.attending ?? null);
@@ -542,8 +553,17 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <p style={{ ...bodyText(), fontFamily: ff("venue_text"), margin: "0 auto 40px", maxWidth: 320 }}>{tx("venue_text")}</p>
           </div>
 
-          {/* mapa a sangre */}
-          {mapEmbedUrl ? (
+          {/* Ilustración del lugar si la hay; si no, el mapa embebido de siempre.
+              La ilustración se muestra completa (contain) sobre el crema: es un
+              dibujo, recortarlo a sangre le cortaría el arco. */}
+          {venueImage ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={venueImage}
+              alt={venueName ? `Ilustración de ${venueName}` : "Ilustración del lugar"}
+              style={{ display: "block", width: "100%", maxWidth: 400, margin: "0 auto", height: "auto", mixBlendMode: "multiply" }}
+            />
+          ) : mapEmbedUrl ? (
             <iframe
               title="Mapa de la ubicación"
               src={mapEmbedUrl}
@@ -573,12 +593,12 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <div style={{ padding: "52px 34px 80px", textAlign: "center" }}>
             <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onGreen }}>{dressCodeText}</div>
             <p style={{ ...bodyText(true), fontFamily: ff("dress_text"), margin: "16px auto 34px", maxWidth: 300 }}>{tx("dress_text")}</p>
-            {/* grid de 5 columnas: siempre en una sola fila, la etiqueta envuelve debajo */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, maxWidth: 330, margin: "0 auto" }}>
+            {/* barras: dos filas de cinco, la etiqueta envuelve debajo de cada una */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "22px 7px", maxWidth: 340, margin: "0 auto" }}>
               {DRESS_PALETTE.map((p) => (
-                <div key={p.n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 0 }}>
-                  <span style={{ width: 42, height: 42, borderRadius: "50%", background: p.c, boxShadow: "0 0 0 1px rgba(237,234,224,.34)", flex: "none" }} />
-                  <span style={label({ fontSize: 7.5, letterSpacing: "0.1em", color: T.onGreenSoft, lineHeight: 1.6 })}>{p.n}</span>
+                <div key={p.n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 9, minWidth: 0 }}>
+                  <span style={{ width: "100%", height: 74, background: p.c, boxShadow: "0 0 0 1px rgba(237,234,224,.28)" }} />
+                  <span style={label({ fontSize: 7.5, letterSpacing: "0.09em", color: T.onGreenSoft, lineHeight: 1.6 })}>{p.n}</span>
                 </div>
               ))}
             </div>
@@ -638,7 +658,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
           <section style={{ position: "relative", background: T.green }}>
             <SectionCover img={secPhoto(3)} a="gallery_script" b="gallery_title" size={34} />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridAutoRows: 148, gap: 3 }}>
-              {gallery.map((src, i) => {
+              {mosaic.map((src, i) => {
                 // ritmo del mosaico: cada 6 fotos, una alta y una ancha
                 const r = i % 6;
                 const span = r === 0 ? { gridRow: "span 2" } : r === 3 ? { gridColumn: "span 2" } : {};

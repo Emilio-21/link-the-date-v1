@@ -63,6 +63,9 @@ export const OLIVOS_SLOTS = [
   { key: "venue_script", section: "Celebración", label: "Título · primera parte", default: "La", font: "romanceDream" },
   { key: "venue_title",  section: "Celebración", label: "Título · segunda parte", default: "Celebración", font: "romanceDream" },
   { key: "venue_text",   section: "Celebración", label: "Texto de la sección", default: "La ceremonia y la recepción se llevarán a cabo en el mismo lugar.", font: "jost", multiline: true },
+  // Si se pega aquí la URL de una ilustración/foto del lugar, sustituye al mapa
+  // de Google. En blanco, se muestra el mapa embebido como siempre.
+  { key: "venue_image",  section: "Celebración", label: "Ilustración del lugar (URL; sustituye al mapa)", default: "", font: "jost" },
   { key: "venue_button", section: "Celebración", label: "Texto del botón de mapa", default: "Cómo llegar", font: "jost" },
 
   // ── Vestimenta ───────────────────────────────────────────────────────
