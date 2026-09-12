@@ -43,11 +43,12 @@ const T = {
 const DISPLAY = "'Ancora',serif";
 const SANS = "'Jost',sans-serif";
 
-// Paleta de vestimenta: 10 tonos en barras, del más claro al más oscuro.
-// Se muestran en dos filas de cinco; en una sola fila cada barra quedaría
-// demasiado angosta para leer su nombre en pantalla de celular.
+// Paleta de vestimenta, del más claro al más oscuro. Se muestran en barras de
+// cinco por fila; en una sola fila cada barra quedaría demasiado angosta para
+// leer su nombre en pantalla de celular.
+// Se quitó "Marfil cálido" (#E6DDC6) a petición del cliente: rozaba el blanco,
+// que la propia sección reserva para la novia.
 const DRESS_PALETTE = [
-  { c: "#E6DDC6", n: "Marfil cálido" },
   { c: "#C8B8A3", n: "Arena suave" },
   { c: "#B7B1A6", n: "Lino natural" },
   { c: "#8A8F7A", n: "Olivo claro" },
@@ -600,10 +601,12 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             <div style={{ padding: "52px 34px 80px", textAlign: "center" }}>
             <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onDark }}>{dressCodeText}</div>
             <p style={{ ...bodyText(true), fontFamily: ff("dress_text"), margin: "16px auto 34px", maxWidth: 300 }}>{tx("dress_text")}</p>
-            {/* barras: dos filas de cinco, la etiqueta envuelve debajo de cada una */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "22px 7px", maxWidth: 340, margin: "0 auto" }}>
+            {/* Barras de cinco por fila. Flex y no grid a propósito: si el número
+                de tonos no es múltiplo de cinco, la última fila queda centrada
+                en vez de descolgada a la izquierda. */}
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "22px 7px", maxWidth: 340, margin: "0 auto" }}>
               {DRESS_PALETTE.map((p) => (
-                <div key={p.n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 9, minWidth: 0 }}>
+                <div key={p.n} style={{ width: "calc(20% - 6px)", display: "flex", flexDirection: "column", alignItems: "center", gap: 9, minWidth: 0 }}>
                   <span style={{ width: "100%", height: 74, background: p.c, boxShadow: "0 0 0 1px rgba(237,234,224,.28)" }} />
                   <span style={label({ fontSize: 7.5, letterSpacing: "0.09em", color: T.onDarkSoft, lineHeight: 1.6 })}>{p.n}</span>
                 </div>
