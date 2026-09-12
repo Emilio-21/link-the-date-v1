@@ -1,9 +1,9 @@
 // app/templates/plantilla_olivos/PlantillaOlivos.jsx
-// Plantilla "Olivos" — editorial moderno: crema/hueso + verde profundo,
-// fotografía a sangre y serif itálica de gran tamaño.
+// Plantilla "Olivos" — editorial moderno: crema/hueso + azul empolvado profundo,
+// fotografía a sangre y serif display de gran tamaño.
 // Contrato: { event, guest, rsvp }.
 // Notas:
-//  - El ritmo visual alterna foto a sangre → crema → verde → crema…
+//  - El ritmo visual alterna foto a sangre → crema → azul → crema…
 //  - Los títulos de sección se arman con dos slots que se leen como una sola
 //    frase; se deja la fuente por separado por si se quiere contrastar.
 //  - Las animaciones scroll-driven se omiten a propósito (no funcionan en
@@ -19,19 +19,25 @@ import { OLIVOS_SLOT_MAP } from "./content";
 const ASSET = (n) => `/template/plantilla_olivos/${n}`;
 
 // ── paleta / tokens ────────────────────────────────────────────────────────
+// Azul empolvado (#7D8DA6 de la paleta del cliente) llevado a un tono profundo:
+// el color de la paleta es de media luz y, como fondo de sección, dejaba el
+// texto crema en 2.8:1 de contraste. Bajado a #2E3D4D da 9.2:1 conservando el
+// matiz (mismo azul grisáceo, ~215°) y la sensación empolvada.
+// Los tokens se llaman "dark/onDark" y no "blue": describen el papel que
+// cumplen, así el siguiente cambio de color no deja nombres mintiendo.
 const T = {
-  ink: "#1F2A20",        // verde casi negro — texto principal sobre crema
-  inkSoft: "#4A5347",    // texto secundario sobre crema
-  muted: "#7D8378",      // texto terciario / etiquetas
-  green: "#243021",      // verde profundo — secciones oscuras
-  greenDeep: "#1A2418",
+  ink: "#202A36",        // azul casi negro — texto principal sobre crema
+  inkSoft: "#47505C",    // texto secundario sobre crema
+  muted: "#7B818C",      // texto terciario / etiquetas
+  dark: "#2E3D4D",       // azul empolvado profundo — secciones oscuras
+  darkDeep: "#222E3B",
   cream: "#F7F5EE",      // crema principal
   cream2: "#EFEBE0",     // crema alterno (tarjetas)
-  onGreen: "#EDEAE0",    // texto sobre verde
-  onGreenSoft: "rgba(237,234,224,.62)",
-  line: "rgba(31,42,32,.14)",
+  onDark: "#EDEAE0",     // texto sobre el azul
+  onDarkSoft: "rgba(237,234,224,.62)",
+  line: "rgba(32,42,54,.14)",
   lineOn: "rgba(237,234,224,.22)",
-  accent: "#A08B5B",     // dorado oliva apagado, para detalles finos
+  accent: "#A08B5B",     // dorado apagado, contrapunto cálido al azul frío
 };
 // Serif display propia del estudio: nombres, lugar, etiquetas de regalo.
 const DISPLAY = "'Ancora',serif";
@@ -94,8 +100,8 @@ function Countdown({ iso }) {
 
   const Unit = ({ val, lbl }) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 56 }}>
-      <div style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: 42, lineHeight: 0.95, color: T.onGreen, fontVariantNumeric: "tabular-nums" }}>{val}</div>
-      <div style={label({ fontSize: 8.5, letterSpacing: "0.26em", color: T.onGreenSoft })}>{lbl}</div>
+      <div style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: 42, lineHeight: 0.95, color: T.onDark, fontVariantNumeric: "tabular-nums" }}>{val}</div>
+      <div style={label({ fontSize: 8.5, letterSpacing: "0.26em", color: T.onDarkSoft })}>{lbl}</div>
     </div>
   );
   const Sep = () => <div style={{ fontFamily: DISPLAY, fontSize: 30, lineHeight: 1.1, color: "rgba(237,234,224,.28)" }}>:</div>;
@@ -455,14 +461,14 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   // a los bordes. La foto queda de fondo absoluto, así que acompaña el alto.
   const SectionCover = ({ img, a, b, minHeight = 208, size = 36, pos = "center 38%" }) => (
     <div style={{
-      position: "relative", minHeight, overflow: "hidden", background: T.greenDeep,
+      position: "relative", minHeight, overflow: "hidden", background: T.darkDeep,
       display: "flex", alignItems: "center", justifyContent: "center", padding: "38px 26px",
     }}>
       {img && (
         <div style={{ position: "absolute", inset: 0, backgroundImage: `url('${img}')`, backgroundSize: "cover", backgroundPosition: pos, filter: "saturate(.78) contrast(1.03)" }} />
       )}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,28,18,.34), rgba(20,28,18,.52))" }} />
-      <div style={{ position: "relative", width: "100%", textShadow: "0 2px 20px rgba(20,28,18,.55)" }}>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(18,26,38,.34), rgba(18,26,38,.52))" }} />
+      <div style={{ position: "relative", width: "100%", textShadow: "0 2px 20px rgba(18,26,38,.55)" }}>
         <SectionTitle a={a} b={b} color="#FBFAF6" size={size} />
       </div>
     </div>
@@ -470,10 +476,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
   // Estilos de sección reutilizables.
   const secCream = { position: "relative", background: T.cream, padding: "76px 34px 80px" };
-  const secGreen = { position: "relative", background: T.green, padding: "76px 34px 80px", color: T.onGreen };
+  const secDark = { position: "relative", background: T.dark, padding: "76px 34px 80px", color: T.onDark };
   const bodyText = (over = false) => ({
     fontFamily: SANS, fontSize: 13, fontWeight: 300, lineHeight: 2,
-    color: over ? T.onGreenSoft : T.inkSoft, textWrap: "pretty", whiteSpace: "pre-line",
+    color: over ? T.onDarkSoft : T.inkSoft, textWrap: "pretty", whiteSpace: "pre-line",
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -485,19 +491,19 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
       {/* Intro: sobre sellado que se abre como carta */}
       <EnvelopeIntro sealText={sealText} sealFont={ff("envelope_seal")} hint={tx("envelope_hint")} hintFont={ff("envelope_hint")} />
 
-      <div style={{ width: "100%", maxWidth: 452, position: "relative", backgroundColor: T.cream, boxShadow: "0 0 80px rgba(36,48,33,.22)", overflow: "hidden" }}>
+      <div style={{ width: "100%", maxWidth: 452, position: "relative", backgroundColor: T.cream, boxShadow: "0 0 80px rgba(34,46,59,.22)", overflow: "hidden" }}>
 
         {/* ============ 1 · PORTADA (foto a sangre) ============ */}
         <section style={{ position: "relative", height: "clamp(540px, 82vh, 680px)", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, backgroundImage: `url('${coverUrl}')`, backgroundSize: "cover", backgroundPosition: "center 32%", filter: "saturate(.82) contrast(1.04)" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(26,36,24,.42) 0%, rgba(26,36,24,.10) 34%, rgba(26,36,24,.30) 62%, rgba(26,36,24,.80) 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,28,40,.42) 0%, rgba(20,28,40,.10) 34%, rgba(20,28,40,.30) 62%, rgba(20,28,40,.80) 100%)" }} />
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", textAlign: "center", padding: "0 28px 54px" }}>
             {tx("cover_intro") && (
               <div style={{ fontFamily: ff("cover_intro"), fontSize: 9.5, fontWeight: 400, letterSpacing: "0.26em", textTransform: "uppercase", lineHeight: 2, color: "rgba(247,245,238,.9)", maxWidth: 300, marginBottom: 18, textWrap: "balance", whiteSpace: "pre-line" }}>
                 {tx("cover_intro")}
               </div>
             )}
-            <div style={{ ...titleFont("couple_name"), fontSize: 52, lineHeight: 1.1, color: "#FBFAF6", textShadow: "0 2px 24px rgba(20,28,18,.45)", overflowWrap: "anywhere", maxWidth: "100%", textWrap: "balance" }}>
+            <div style={{ ...titleFont("couple_name"), fontSize: 52, lineHeight: 1.1, color: "#FBFAF6", textShadow: "0 2px 24px rgba(18,26,38,.45)", overflowWrap: "anywhere", maxWidth: "100%", textWrap: "balance" }}>
               {partnerB ? `${partnerA} & ${partnerB}` : (partnerA || "Los novios")}
             </div>
             <Rule color="rgba(247,245,238,.34)" width={40} margin="20px auto 16px" />
@@ -535,9 +541,9 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
         </section>
 
         {/* ============ 3 · CUENTA REGRESIVA ============ */}
-        <section style={{ ...secGreen, textAlign: "center" }}>
-          <div style={{ ...titleFont("countdown_script"), fontSize: 34, lineHeight: 1.2, color: T.onGreen }}>{tx("countdown_script")}</div>
-          <div style={{ fontFamily: ff("countdown_label"), ...label({ fontSize: 9, color: T.onGreenSoft }), margin: "12px 0 34px" }}>{tx("countdown_label")}</div>
+        <section style={{ ...secDark, textAlign: "center" }}>
+          <div style={{ ...titleFont("countdown_script"), fontSize: 34, lineHeight: 1.2, color: T.onDark }}>{tx("countdown_script")}</div>
+          <div style={{ fontFamily: ff("countdown_label"), ...label({ fontSize: 9, color: T.onDarkSoft }), margin: "12px 0 34px" }}>{tx("countdown_label")}</div>
           <Countdown iso={eventISO} />
           {longDate && (
             <>
@@ -573,7 +579,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
               style={{ display: "block", width: "100%", height: 236, border: 0, filter: "saturate(.72) contrast(1.02)" }}
             />
           ) : (
-            <div style={{ height: 180, background: "linear-gradient(135deg,#3E4A38,#6E7A5E)" }} />
+            <div style={{ height: 180, background: "linear-gradient(135deg,#3A4A5C,#6E7E94)" }} />
           )}
 
           <div style={{ padding: "34px 34px 80px", textAlign: "center" }}>
@@ -589,22 +595,22 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
         {/* ============ 5 · CÓDIGO DE VESTIMENTA ============ */}
         {showDressCode && (
-          <section style={{ position: "relative", background: T.green, color: T.onGreen }}>
+          <section style={{ position: "relative", background: T.dark, color: T.onDark }}>
             <SectionCover img={secPhoto(1)} a="dress_script" b="dress_title" />
             <div style={{ padding: "52px 34px 80px", textAlign: "center" }}>
-            <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onGreen }}>{dressCodeText}</div>
+            <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onDark }}>{dressCodeText}</div>
             <p style={{ ...bodyText(true), fontFamily: ff("dress_text"), margin: "16px auto 34px", maxWidth: 300 }}>{tx("dress_text")}</p>
             {/* barras: dos filas de cinco, la etiqueta envuelve debajo de cada una */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "22px 7px", maxWidth: 340, margin: "0 auto" }}>
               {DRESS_PALETTE.map((p) => (
                 <div key={p.n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 9, minWidth: 0 }}>
                   <span style={{ width: "100%", height: 74, background: p.c, boxShadow: "0 0 0 1px rgba(237,234,224,.28)" }} />
-                  <span style={label({ fontSize: 7.5, letterSpacing: "0.09em", color: T.onGreenSoft, lineHeight: 1.6 })}>{p.n}</span>
+                  <span style={label({ fontSize: 7.5, letterSpacing: "0.09em", color: T.onDarkSoft, lineHeight: 1.6 })}>{p.n}</span>
                 </div>
               ))}
             </div>
             {showKidsPolicy && (
-              <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 300, color: T.onGreenSoft, letterSpacing: "0.06em", marginTop: 30 }}>{kidsPolicyText}</p>
+              <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 300, color: T.onDarkSoft, letterSpacing: "0.06em", marginTop: 30 }}>{kidsPolicyText}</p>
             )}
             </div>
           </section>
@@ -665,7 +671,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
         {/* ============ 7 · GALERÍA (fotos a sangre) ============ */}
         {gallery.length > 0 && (
-          <section style={{ position: "relative", background: T.green }}>
+          <section style={{ position: "relative", background: T.dark }}>
             <SectionCover img={secPhoto(3)} a="gallery_script" b="gallery_title" size={34} />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridAutoRows: 148, gap: 3 }}>
               {mosaic.map((src, i) => {
@@ -697,7 +703,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
               <div style={{ fontFamily: ff("rsvp_question"), ...label({ fontSize: 9, color: T.muted }), textAlign: "center", marginBottom: 14 }}>{tx("rsvp_question")}</div>
               <div style={{ display: "flex", gap: 10, marginBottom: yes ? 24 : 30 }}>
-                <div onClick={() => setAttending(true)} style={{ ...segBase, fontFamily: ff("rsvp_yes"), ...(yes ? { background: T.green, color: T.onGreen, border: `1px solid ${T.green}` } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{tx("rsvp_yes")}</div>
+                <div onClick={() => setAttending(true)} style={{ ...segBase, fontFamily: ff("rsvp_yes"), ...(yes ? { background: T.dark, color: T.onDark, border: `1px solid ${T.dark}` } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{tx("rsvp_yes")}</div>
                 <div onClick={() => setAttending(false)} style={{ ...segBase, fontFamily: ff("rsvp_no"), ...(no ? { background: T.muted, color: T.cream, border: `1px solid ${T.muted}` } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{tx("rsvp_no")}</div>
               </div>
 
@@ -706,7 +712,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                   <div style={{ fontFamily: ff("rsvp_count"), ...label({ fontSize: 9, color: T.muted }), marginBottom: 14 }}>{tx("rsvp_count")}</div>
                   <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
                     {passOptions.map((n) => (
-                      <div key={n} onClick={() => setPartySize(n)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontFamily: DISPLAY, fontSize: 16, transition: "all .2s ease", ...(partySize === n ? { background: T.green, color: T.onGreen } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{n}</div>
+                      <div key={n} onClick={() => setPartySize(n)} style={{ width: 42, height: 42, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontFamily: DISPLAY, fontSize: 16, transition: "all .2s ease", ...(partySize === n ? { background: T.dark, color: T.onDark } : { background: "transparent", color: T.inkSoft, border: `1px solid ${T.line}` }) }}>{n}</div>
                     ))}
                   </div>
                 </div>
@@ -714,7 +720,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
               {errMsg && <div style={{ textAlign: "center", color: "#9c4a3c", fontFamily: SANS, fontSize: 11.5, marginBottom: 16 }}>{errMsg}</div>}
 
-              <div onClick={() => !busy && submitRSVP()} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "18px 0", borderRadius: 2, background: T.green, color: T.onGreen, fontFamily: ff("rsvp_submit"), fontSize: 10.5, fontWeight: 500, letterSpacing: "0.26em", textTransform: "uppercase", cursor: "pointer", ...(attending === null || busy ? { opacity: 0.35, pointerEvents: "none" } : {}) }}>
+              <div onClick={() => !busy && submitRSVP()} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "18px 0", borderRadius: 2, background: T.dark, color: T.onDark, fontFamily: ff("rsvp_submit"), fontSize: 10.5, fontWeight: 500, letterSpacing: "0.26em", textTransform: "uppercase", cursor: "pointer", ...(attending === null || busy ? { opacity: 0.35, pointerEvents: "none" } : {}) }}>
                 {busy ? "Enviando…" : tx("rsvp_submit")}
               </div>
               </div>
