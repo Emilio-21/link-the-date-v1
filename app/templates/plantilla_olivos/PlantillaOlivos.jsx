@@ -36,8 +36,6 @@ const T = {
 // Serif display propia del estudio: nombres, lugar, etiquetas de regalo.
 const DISPLAY = "'Ancora',serif";
 const SANS = "'Jost',sans-serif";
-// Cursiva propia, para los momentos expresivos que no salen de un slot.
-const SCRIPT_FACE = "'Romance Dream',cursive";
 
 // Paleta de vestimenta: 10 tonos en barras, del más claro al más oscuro.
 // Se muestran en dos filas de cinco; en una sola fila cada barra quedaría
@@ -281,11 +279,13 @@ function EnvelopeIntro({ sealText, sealFont, hint, hintFont }) {
 export function PlantillaOlivos({ event, guest, rsvp }) {
   // ── personalización (texto + fuente por sección) ─────────────────────────
   const cz = event?.customization && typeof event.customization === "object" ? event.customization : {};
-  // Texto del slot: usa el override si tiene contenido, si no el default del registro.
+  // Texto del slot. Si el anfitrión guardó un texto, manda ese — aunque lo haya
+  // dejado en blanco: borrar un campo tiene que hacer desaparecer el texto, no
+  // resucitar el default. Sólo un slot que nunca se tocó cae al default.
   const tx = (key) => {
-    const o = cz[key] || {};
-    const t = typeof o.text === "string" ? o.text.trim() : "";
-    return t || OLIVOS_SLOT_MAP[key]?.default || "";
+    const o = cz[key];
+    if (o && typeof o.text === "string") return o.text.trim();
+    return OLIVOS_SLOT_MAP[key]?.default || "";
   };
   const fontKeyOf = (key) => (cz[key] || {}).font || OLIVOS_SLOT_MAP[key]?.font;
   // Fuente del slot: usa el override o la fuente por defecto del registro.
@@ -298,7 +298,8 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   // Fuentes en uso: base de la plantilla + cualquier personalizada del evento.
   // Las de Google entran por <link>; las propias como @font-face.
   const { fontsHref, faceCss } = useMemo(() => {
-    const base = ["ancora", "tokyoDreams", "romanceDream", "jost", "playfair", "cormorant"];
+    // Romance Dream ya no entra aquí: sólo se descarga si algún slot la elige.
+    const base = ["ancora", "tokyoDreams", "jost", "cormorant"];
     const overrides = Object.values(cz).map((o) => o?.font).filter(Boolean);
     const keys = [...base, ...overrides];
     return { fontsHref: googleFontsHref(keys), faceCss: fontFaceCss(keys) };
@@ -614,6 +615,15 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
           <section style={{ position: "relative", background: T.cream }}>
             <SectionCover img={secPhoto(2)} a="gifts_script" b="gifts_title" size={34} />
             <div style={{ padding: "52px 34px 80px" }}>
+            {tx("gifts_lead") && (
+              <p style={{
+                ...titleFont("gifts_lead"), textAlign: "center", fontSize: 23, lineHeight: 1.4,
+                color: T.ink, margin: "0 auto 22px", maxWidth: 300,
+                textWrap: "balance", overflowWrap: "anywhere", whiteSpace: "pre-line",
+              }}>
+                {tx("gifts_lead")}
+              </p>
+            )}
             <p style={{ ...bodyText(), fontFamily: SANS, textAlign: "center", margin: "0 auto 34px", maxWidth: 320 }}>{giftsMessage}</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -716,7 +726,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                   {attending ? <path d="M5 12.5 L10 17.5 L19 6.5" /> : <path d="M6 6 L18 18 M18 6 L6 18" />}
                 </svg>
               </div>
-              <div style={{ fontFamily: SCRIPT_FACE, fontSize: 40, lineHeight: 1.18, color: T.ink }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
+              <div style={{ fontFamily: DISPLAY, fontSize: 38, lineHeight: 1.18, color: T.ink }}>{attending ? "¡Confirmado!" : "Gracias por avisar"}</div>
               <Rule margin="22px auto" />
               <p style={{ ...bodyText(), fontFamily: ff(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no"), margin: "0 auto 26px", maxWidth: 310 }}>
                 {tx(attending ? "rsvp_confirmed_yes" : "rsvp_confirmed_no")}

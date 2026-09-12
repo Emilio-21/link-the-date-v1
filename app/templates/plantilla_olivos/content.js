@@ -51,17 +51,19 @@ export const OLIVOS_SLOTS = [
 
   // ── Saludo ───────────────────────────────────────────────────────────
   { key: "greeting_intro", section: "Saludo", label: "Antetítulo del saludo", default: "Con todo nuestro cariño,", font: "jost" },
-  { key: "guest_name",     section: "Saludo", label: "Nombre del invitado (fuente)", font: "romanceDream", textEditable: false },
+  // A propósito distinta de la de los novios (couple_name), para que el nombre
+  // del invitado no compita con el de ellos.
+  { key: "guest_name",     section: "Saludo", label: "Nombre del invitado (fuente)", font: "cormorant", textEditable: false },
   { key: "main_message",   section: "Saludo", label: "Mensaje principal (fuente)", font: "jost", textEditable: false },
   { key: "passes_text",    section: "Saludo", label: "Frase de lugares reservados (usa {n} para el número)", default: "Se han reservado {n} lugares especialmente para ustedes", font: "jost", multiline: true },
 
   // ── Cuenta regresiva ─────────────────────────────────────────────────
-  { key: "countdown_script", section: "Cuenta regresiva", label: "Frase destacada", default: "Falta muy poco", font: "romanceDream" },
+  { key: "countdown_script", section: "Cuenta regresiva", label: "Frase destacada", default: "Falta muy poco", font: "ancora" },
   { key: "countdown_label",  section: "Cuenta regresiva", label: "Subtítulo", default: "Cuenta regresiva", font: "jost" },
 
   // ── Celebración / ubicación ──────────────────────────────────────────
-  { key: "venue_script", section: "Celebración", label: "Título · primera parte", default: "La", font: "romanceDream" },
-  { key: "venue_title",  section: "Celebración", label: "Título · segunda parte", default: "Celebración", font: "romanceDream" },
+  { key: "venue_script", section: "Celebración", label: "Título · primera parte", default: "La", font: "ancora" },
+  { key: "venue_title",  section: "Celebración", label: "Título · segunda parte", default: "Celebración", font: "ancora" },
   { key: "venue_text",   section: "Celebración", label: "Texto de la sección", default: "La ceremonia y la recepción se llevarán a cabo en el mismo lugar.", font: "jost", multiline: true },
   // Si se pega aquí la URL de una ilustración/foto del lugar, sustituye al mapa
   // de Google. En blanco, se muestra el mapa embebido como siempre.
@@ -69,22 +71,25 @@ export const OLIVOS_SLOTS = [
   { key: "venue_button", section: "Celebración", label: "Texto del botón de mapa", default: "Cómo llegar", font: "jost" },
 
   // ── Vestimenta ───────────────────────────────────────────────────────
-  { key: "dress_script", section: "Vestimenta", label: "Título · primera parte", default: "¿Qué", font: "romanceDream" },
-  { key: "dress_title",  section: "Vestimenta", label: "Título · segunda parte", default: "me pongo?", font: "romanceDream" },
+  { key: "dress_script", section: "Vestimenta", label: "Título · primera parte", default: "¿Qué", font: "ancora" },
+  { key: "dress_title",  section: "Vestimenta", label: "Título · segunda parte", default: "me pongo?", font: "ancora" },
   { key: "dress_text",   section: "Vestimenta", label: "Texto de la sección", default: "Inspírate en nuestra paleta de tonos suaves. Reservamos el blanco para la novia.", font: "jost", multiline: true },
   { key: "dress_value",  section: "Vestimenta", label: "Código de vestimenta (fuente)", font: "jost", textEditable: false },
 
   // ── Mesa de regalos ──────────────────────────────────────────────────
-  { key: "gifts_script", section: "Mesa de regalos", label: "Título · primera parte", default: "Mesa de", font: "romanceDream" },
-  { key: "gifts_title",  section: "Mesa de regalos", label: "Título · segunda parte", default: "Regalos", font: "romanceDream" },
+  { key: "gifts_script", section: "Mesa de regalos", label: "Título · primera parte", default: "Mesa de", font: "ancora" },
+  { key: "gifts_title",  section: "Mesa de regalos", label: "Título · segunda parte", default: "Regalos", font: "ancora" },
+  // Frase destacada: va sobre el mensaje, en cuerpo grande. Es el lugar para
+  // frases largas que como título quedarían enormes.
+  { key: "gifts_lead",   section: "Mesa de regalos", label: "Frase destacada (sobre el mensaje)", default: "", font: "ancora", multiline: true },
   { key: "gifts_link",   section: "Mesa de regalos", label: "Texto del enlace de cada mesa", default: "Ver lista", font: "jost" },
 
   // ── Galería ──────────────────────────────────────────────────────────
-  { key: "gallery_script", section: "Galería", label: "Título · primera parte", default: "Nuestra", font: "romanceDream" },
-  { key: "gallery_title",  section: "Galería", label: "Título · segunda parte", default: "Historia", font: "romanceDream" },
+  { key: "gallery_script", section: "Galería", label: "Título · primera parte", default: "Nuestra", font: "ancora" },
+  { key: "gallery_title",  section: "Galería", label: "Título · segunda parte", default: "Historia", font: "ancora" },
 
   // ── RSVP ─────────────────────────────────────────────────────────────
-  { key: "rsvp_title",    section: "Confirmación (RSVP)", label: "Título de la sección", default: "¿Nos acompañas?", font: "romanceDream" },
+  { key: "rsvp_title",    section: "Confirmación (RSVP)", label: "Título de la sección", default: "¿Nos acompañas?", font: "ancora" },
   { key: "rsvp_question", section: "Confirmación (RSVP)", label: "Pregunta de asistencia", default: "¿Asistirás?", font: "jost" },
   { key: "rsvp_yes",      section: "Confirmación (RSVP)", label: "Botón — sí asistiré", default: "Sí, asistiré", font: "jost" },
   { key: "rsvp_no",       section: "Confirmación (RSVP)", label: "Botón — no podré", default: "No podré", font: "jost" },
