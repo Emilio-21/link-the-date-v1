@@ -33,7 +33,8 @@ const T = {
   lineOn: "rgba(237,234,224,.22)",
   accent: "#A08B5B",     // dorado oliva apagado, para detalles finos
 };
-const DISPLAY = "'Playfair Display',serif";
+// Serif display propia del estudio: nombres, lugar, etiquetas de regalo.
+const DISPLAY = "'Ancora',serif";
 const SANS = "'Jost',sans-serif";
 // Cursiva propia, para los momentos expresivos que no salen de un slot.
 const SCRIPT_FACE = "'Romance Dream',cursive";
@@ -292,7 +293,7 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
   // Fuentes en uso: base de la plantilla + cualquier personalizada del evento.
   // Las de Google entran por <link>; las propias como @font-face.
   const { fontsHref, faceCss } = useMemo(() => {
-    const base = ["playfair", "jost", "cormorant", "romanceDream"];
+    const base = ["ancora", "tokyoDreams", "romanceDream", "jost", "playfair", "cormorant"];
     const overrides = Object.values(cz).map((o) => o?.font).filter(Boolean);
     const keys = [...base, ...overrides];
     return { fontsHref: googleFontsHref(keys), faceCss: fontFaceCss(keys) };
@@ -362,7 +363,13 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
     en: "Please confirm your attendance before",
   });
   const coverUrl = event?.cover_url || ASSET("portada.jpeg");
-  const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean).slice(0, 6) : [];
+  const gallery = Array.isArray(event?.gallery_urls) ? event.gallery_urls.filter(Boolean).slice(0, 10) : [];
+
+  // Foto que encabeza cada sección. Se reparten las de la galería en orden y,
+  // si hay menos fotos que secciones, se vuelven a usar (el recorte y el título
+  // encima hacen que no se note como repetición). Sin galería, cae a la portada.
+  const photoPool = gallery.length ? gallery : [coverUrl];
+  const secPhoto = (i) => photoPool[i % photoPool.length];
 
   // ── RSVP ───────────────────────────────────────────────────────────────
   const [attending, setAttending] = useState(rsvp?.attending ?? null);
@@ -427,6 +434,26 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
       {tx(a) && <span style={titleFont(a)}>{tx(a)} </span>}
       {tx(b) && <span style={titleFont(b)}>{tx(b)}</span>}
     </h2>
+  );
+
+  // Portada de sección: foto a sangre con el título encima, y el detalle debajo.
+  // Es el recurso que da ritmo a la invitación y mete más fotos de los novios.
+  // El velo oscuro va siempre, con o sin foto, para que el título se lea.
+  // minHeight (no height fija): un título largo crece la banda en vez de pegarse
+  // a los bordes. La foto queda de fondo absoluto, así que acompaña el alto.
+  const SectionCover = ({ img, a, b, minHeight = 208, size = 36, pos = "center 38%" }) => (
+    <div style={{
+      position: "relative", minHeight, overflow: "hidden", background: T.greenDeep,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "38px 26px",
+    }}>
+      {img && (
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `url('${img}')`, backgroundSize: "cover", backgroundPosition: pos, filter: "saturate(.78) contrast(1.03)" }} />
+      )}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,28,18,.34), rgba(20,28,18,.52))" }} />
+      <div style={{ position: "relative", width: "100%", textShadow: "0 2px 20px rgba(20,28,18,.55)" }}>
+        <SectionTitle a={a} b={b} color="#FBFAF6" size={size} />
+      </div>
+    </div>
   );
 
   // Estilos de sección reutilizables.
@@ -509,10 +536,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
         </section>
 
         {/* ============ 4 · CELEBRACIÓN / UBICACIÓN ============ */}
-        <section style={{ position: "relative", background: T.cream, paddingTop: 76 }}>
-          <div style={{ padding: "0 34px", textAlign: "center" }}>
-            <SectionTitle a="venue_script" b="venue_title" />
-            <p style={{ ...bodyText(), fontFamily: ff("venue_text"), margin: "18px auto 40px", maxWidth: 320 }}>{tx("venue_text")}</p>
+        <section style={{ position: "relative", background: T.cream }}>
+          <SectionCover img={secPhoto(0)} a="venue_script" b="venue_title" />
+          <div style={{ padding: "52px 34px 0", textAlign: "center" }}>
+            <p style={{ ...bodyText(), fontFamily: ff("venue_text"), margin: "0 auto 40px", maxWidth: 320 }}>{tx("venue_text")}</p>
           </div>
 
           {/* mapa a sangre */}
@@ -541,9 +568,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
 
         {/* ============ 5 · CÓDIGO DE VESTIMENTA ============ */}
         {showDressCode && (
-          <section style={{ ...secGreen, textAlign: "center" }}>
-            <SectionTitle a="dress_script" b="dress_title" color={T.onGreen} />
-            <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onGreen, margin: "22px 0 0" }}>{dressCodeText}</div>
+          <section style={{ position: "relative", background: T.green, color: T.onGreen }}>
+            <SectionCover img={secPhoto(1)} a="dress_script" b="dress_title" />
+            <div style={{ padding: "52px 34px 80px", textAlign: "center" }}>
+            <div style={{ fontFamily: ff("dress_value"), fontSize: 15, fontWeight: 400, letterSpacing: "0.32em", textTransform: "uppercase", color: T.onGreen }}>{dressCodeText}</div>
             <p style={{ ...bodyText(true), fontFamily: ff("dress_text"), margin: "16px auto 34px", maxWidth: 300 }}>{tx("dress_text")}</p>
             {/* grid de 5 columnas: siempre en una sola fila, la etiqueta envuelve debajo */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, maxWidth: 330, margin: "0 auto" }}>
@@ -557,14 +585,16 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
             {showKidsPolicy && (
               <p style={{ fontFamily: SANS, fontSize: 11, fontWeight: 300, color: T.onGreenSoft, letterSpacing: "0.06em", marginTop: 30 }}>{kidsPolicyText}</p>
             )}
+            </div>
           </section>
         )}
 
         {/* ============ 6 · MESA DE REGALOS ============ */}
         {(showGifts || showBank) && (
-          <section style={{ ...secCream }}>
-            <SectionTitle a="gifts_script" b="gifts_title" />
-            <p style={{ ...bodyText(), fontFamily: SANS, textAlign: "center", margin: "18px auto 34px", maxWidth: 320 }}>{giftsMessage}</p>
+          <section style={{ position: "relative", background: T.cream }}>
+            <SectionCover img={secPhoto(2)} a="gifts_script" b="gifts_title" size={34} />
+            <div style={{ padding: "52px 34px 80px" }}>
+            <p style={{ ...bodyText(), fontFamily: SANS, textAlign: "center", margin: "0 auto 34px", maxWidth: 320 }}>{giftsMessage}</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {showGifts && giftUrl1 && (
@@ -599,19 +629,19 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
                 </div>
               )}
             </div>
+            </div>
           </section>
         )}
 
         {/* ============ 7 · GALERÍA (fotos a sangre) ============ */}
         {gallery.length > 0 && (
           <section style={{ position: "relative", background: T.green }}>
-            <div style={{ padding: "62px 34px 34px", textAlign: "center" }}>
-              <SectionTitle a="gallery_script" b="gallery_title" color={T.onGreen} size={34} />
-            </div>
+            <SectionCover img={secPhoto(3)} a="gallery_script" b="gallery_title" size={34} />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridAutoRows: 148, gap: 3 }}>
               {gallery.map((src, i) => {
-                // posiciones: 0 = alto (span 2), 3 = ancho (span 2)
-                const span = i === 0 ? { gridRow: "span 2" } : i === 3 ? { gridColumn: "span 2" } : {};
+                // ritmo del mosaico: cada 6 fotos, una alta y una ancha
+                const r = i % 6;
+                const span = r === 0 ? { gridRow: "span 2" } : r === 3 ? { gridColumn: "span 2" } : {};
                 return (
                   <div key={i} style={{ ...span, position: "relative", overflow: "hidden" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -624,15 +654,16 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
         )}
 
         {/* ============ 8 · RSVP ============ */}
-        <section style={{ ...secCream, paddingBottom: 92 }}>
+        <section style={{ position: "relative", background: T.cream, paddingBottom: 92 }}>
           {!confirmed ? (
             <>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ ...titleFont("rsvp_title"), fontSize: 40, lineHeight: 1.18, color: T.ink, textWrap: "balance" }}>{tx("rsvp_title")}</div>
-                <p style={{ ...bodyText(), fontSize: 12.5, margin: "16px auto 34px", maxWidth: 310 }}>
+              <SectionCover img={secPhoto(4)} a="rsvp_title" size={38} />
+              <div style={{ textAlign: "center", padding: "52px 0 0" }}>
+                <p style={{ ...bodyText(), fontSize: 12.5, margin: "0 auto 34px", maxWidth: 310 }}>
                   {rsvpDeadline || "Confírmanos tu asistencia, por favor."}
                 </p>
               </div>
+              <div style={{ padding: "0 34px" }}>
 
               <div style={{ fontFamily: ff("rsvp_question"), ...label({ fontSize: 9, color: T.muted }), textAlign: "center", marginBottom: 14 }}>{tx("rsvp_question")}</div>
               <div style={{ display: "flex", gap: 10, marginBottom: yes ? 24 : 30 }}>
@@ -656,9 +687,10 @@ export function PlantillaOlivos({ event, guest, rsvp }) {
               <div onClick={() => !busy && submitRSVP()} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "18px 0", borderRadius: 2, background: T.green, color: T.onGreen, fontFamily: ff("rsvp_submit"), fontSize: 10.5, fontWeight: 500, letterSpacing: "0.26em", textTransform: "uppercase", cursor: "pointer", ...(attending === null || busy ? { opacity: 0.35, pointerEvents: "none" } : {}) }}>
                 {busy ? "Enviando…" : tx("rsvp_submit")}
               </div>
+              </div>
             </>
           ) : (
-            <div style={{ textAlign: "center" }}>
+            <div style={{ textAlign: "center", padding: "76px 34px 0" }}>
               <div style={{ width: 64, height: 64, margin: "0 auto 26px", borderRadius: "50%", border: `1px solid ${T.accent}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                   {attending ? <path d="M5 12.5 L10 17.5 L19 6.5" /> : <path d="M6 6 L18 18 M18 6 L6 18" />}

@@ -42,9 +42,11 @@ export const OLIVOS_SLOTS = [
 
   // ── Portada ──────────────────────────────────────────────────────────
   { key: "cover_intro",   section: "Portada", label: "Frase de invitación", default: "Con inmensa alegría y agradecidos con Dios… ¡Nos casamos!", font: "jost", multiline: true },
-  { key: "couple_name",   section: "Portada", label: "Nombres de los novios (fuente)", font: "romanceDream", textEditable: false },
-  { key: "cover_date",    section: "Portada", label: "Fecha en portada (fuente)", font: "jost", textEditable: false },
-  { key: "cover_time",    section: "Portada", label: "Hora en portada (fuente)", font: "jost", textEditable: false },
+  { key: "couple_name",   section: "Portada", label: "Nombres de los novios (fuente)", font: "ancora", textEditable: false },
+  // Fecha y hora se generan con formato fijo (sin acentos), así que Tokyo Dreams
+  // es seguro aquí aunque no traiga mayúsculas acentuadas.
+  { key: "cover_date",    section: "Portada", label: "Fecha en portada (fuente)", font: "tokyoDreams", textEditable: false },
+  { key: "cover_time",    section: "Portada", label: "Hora en portada (fuente)", font: "tokyoDreams", textEditable: false },
   { key: "cover_venue",   section: "Portada", label: "Lugar en portada (fuente)", font: "jost", textEditable: false },
 
   // ── Saludo ───────────────────────────────────────────────────────────
