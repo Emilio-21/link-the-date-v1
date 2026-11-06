@@ -28,7 +28,9 @@ export default function QrSheetPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sizeKey, setSizeKey] = useState("m");
-  const [showTable, setShowTable] = useState(true);
+  // Apagado por defecto: en la hoja va el nombre y ya. La mesa se puede
+  // añadir si hace falta para repartir las invitaciones físicas.
+  const [showTable, setShowTable] = useState(false);
 
   const size = SIZES.find((s) => s.key === sizeKey) || SIZES[1];
 
@@ -138,7 +140,7 @@ export default function QrSheetPage() {
               </div>
               <label className="qr-btn" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <input type="checkbox" checked={showTable} onChange={(e) => setShowTable(e.target.checked)} />
-                Mesa y pases
+                Mesa
               </label>
               <button className="qr-btn primary" onClick={() => window.print()} disabled={!ready}>
                 Imprimir
@@ -173,11 +175,8 @@ export default function QrSheetPage() {
                         ? <div dangerouslySetInnerHTML={{ __html: svgs[g.id] }} />
                         : <div style={{ width: size.mm + "mm", height: size.mm + "mm", background: "#f2f0e9" }} />}
                       <div className="qr-name">{g.name}</div>
-                      {showTable && (
-                        <div className="qr-meta">
-                          {g.table_assignment ? `Mesa ${g.table_assignment} · ` : ""}
-                          {g.max_guests ?? 1} pase{(g.max_guests ?? 1) !== 1 ? "s" : ""}
-                        </div>
+                      {showTable && g.table_assignment && (
+                        <div className="qr-meta">Mesa {g.table_assignment}</div>
                       )}
                     </div>
                   ))}
