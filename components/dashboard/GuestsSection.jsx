@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   C, glass, eyebrow, goldButton, fieldInput,
   RSVP, rsvpKey, AVATAR_BGS, initialsOf,
@@ -177,6 +178,18 @@ function GuestQrModal({ guest, onClose }) {
     return () => { alive = false; };
   }, [url]);
 
+  // Cerrar con Escape y congelar el scroll del fondo mientras está abierto.
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
   async function downloadPng() {
     try {
       const data = await qrPngDataUrl(url);
@@ -187,7 +200,9 @@ function GuestQrModal({ guest, onClose }) {
     } catch {}
   }
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       onClick={onClose}
       style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(40,38,30,.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
@@ -209,7 +224,8 @@ function GuestQrModal({ guest, onClose }) {
           <button onClick={downloadPng} disabled={!svg} style={{ ...goldButton, flex: 1, justifyContent: "center", opacity: svg ? 1 : 0.5 }}>Descargar PNG</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
