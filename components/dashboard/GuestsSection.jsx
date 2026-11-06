@@ -6,8 +6,17 @@ import {
   C, glass, eyebrow, goldButton, fieldInput,
   RSVP, rsvpKey, AVATAR_BGS, initialsOf,
 } from "./theme";
+import { FEATURE_QR } from "@/lib/features";
+import { inviteUrl, qrSvg, qrPngDataUrl } from "@/lib/qr/inviteQr";
 
 const EMPTY = { name: "", passes: 1, email: "", phone: "", table: "" };
+
+// Ruta de las hojas de QR. Cuelga del dashboard del tenant a propósito: el
+// middleware ya exige sesión y que el usuario sea dueño de ese tenant.
+function qrSheetUrl(eventId) {
+  const m = window.location.pathname.match(/^\/u\/([^/]+)\/dashboard/);
+  return m ? `/u/${m[1]}/dashboard/qr/${eventId}` : `/dashboard/qr/${eventId}`;
+}
 
 // Teléfono = ancho ≤ 640px (iPad y mayores se consideran "no teléfono").
 function useIsPhone() {
@@ -44,6 +53,14 @@ const ICONS = {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
       <path d="M4 20h4L19 9a2.6 2.6 0 0 0-4-4L4 16v4Z" />
       <path d="M14 6l4 4" />
+    </svg>
+  ),
+  qr: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <path d="M14 14h3v3h-3zM19 19h2v2h-2zM14 19h2v2h-2zM19 14h2v2h-2z" fill="currentColor" stroke="none" />
     </svg>
   ),
   trash: (
@@ -148,11 +165,62 @@ function GuestForm({ initial, editing, onSubmit, onCancel, busy }) {
   );
 }
 
-function GuestActions({ gv, hasToken, onCopy, onEdit, onDelete, layout = "icons" }) {
+// ── QR de un invitado (provisional, ver lib/features.js) ───────────────────
+// Sólo existe en el dashboard: la invitación del invitado nunca muestra un QR.
+function GuestQrModal({ guest, onClose }) {
+  const [svg, setSvg] = useState("");
+  const url = inviteUrl(guest);
+
+  useEffect(() => {
+    let alive = true;
+    qrSvg(url).then((v) => alive && setSvg(v)).catch(() => {});
+    return () => { alive = false; };
+  }, [url]);
+
+  async function downloadPng() {
+    try {
+      const data = await qrPngDataUrl(url);
+      const a = document.createElement("a");
+      a.href = data;
+      a.download = `qr-${(guest.name || "invitado").replace(/[^\w\-]+/g, "-").toLowerCase()}.png`;
+      a.click();
+    } catch {}
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(40,38,30,.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ background: "#fff", borderRadius: 20, padding: 26, width: "min(100%,340px)", textAlign: "center", boxShadow: "0 20px 60px rgba(40,38,30,.3)" }}
+      >
+        <div style={{ ...eyebrow, marginBottom: 4 }}>Código QR</div>
+        <div className="font-serif-ltd" style={{ fontWeight: 700, fontSize: 19, color: C.ink, marginBottom: 16, overflowWrap: "anywhere" }}>{guest.name}</div>
+        <div style={{ width: 200, height: 200, margin: "0 auto", background: "#f6f4ee", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {svg
+            ? <div style={{ width: 176, height: 176 }} dangerouslySetInnerHTML={{ __html: svg.replace("<svg ", '<svg style="width:100%;height:100%;display:block" ') }} />
+            : <span style={{ fontSize: 12, color: C.mutedSoft }}>Generando…</span>}
+        </div>
+        <p style={{ fontSize: 11, color: C.mutedSoft, margin: "14px 0 0", overflowWrap: "anywhere", lineHeight: 1.5 }}>{url}</p>
+        <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "10px 0", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(120,115,95,0.2)", borderRadius: 12, color: "#5a564b", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Cerrar</button>
+          <button onClick={downloadPng} disabled={!svg} style={{ ...goldButton, flex: 1, justifyContent: "center", opacity: svg ? 1 : 0.5 }}>Descargar PNG</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GuestActions({ gv, hasToken, onCopy, onQr, onEdit, onDelete, layout = "icons" }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
       {hasToken && (
         <button onClick={onCopy} style={copyBtnSmall}>{ICONS.copy}Copiar</button>
+      )}
+      {FEATURE_QR && hasToken && (
+        <button title="Ver código QR" onClick={onQr} style={iconBtn(false)}>{ICONS.qr}</button>
       )}
       <button title="Editar" onClick={onEdit} style={iconBtn(false)}>{ICONS.edit}</button>
       <button title="Borrar" onClick={onDelete} style={iconBtn(true)}>{ICONS.trash}</button>
@@ -160,7 +228,7 @@ function GuestActions({ gv, hasToken, onCopy, onEdit, onDelete, layout = "icons"
   );
 }
 
-function RowsView({ rows, onCopy, onEdit, onDelete }) {
+function RowsView({ rows, onCopy, onQr, onEdit, onDelete }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {rows.map((gv) => (
@@ -177,7 +245,7 @@ function RowsView({ rows, onCopy, onEdit, onDelete }) {
             <span style={statCell}><span style={statCellLabel}>Mesa</span><span style={statCellVal}>{gv.mesa}</span></span>
             <span style={statCell}><span style={statCellLabel}>Asisten</span><span style={statCellVal}>{gv.asistentes}</span></span>
             <span style={{ ...rsvpPill(gv), padding: "7px 13px", fontSize: 12.5 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: gv.rsvpColor }} />{gv.rsvpLabel}</span>
-            <GuestActions gv={gv} hasToken={!!gv.raw.token} onCopy={() => onCopy(gv.raw)} onEdit={() => onEdit(gv.raw)} onDelete={() => onDelete(gv.raw)} />
+            <GuestActions gv={gv} hasToken={!!gv.raw.token} onCopy={() => onCopy(gv.raw)} onQr={() => onQr(gv.raw)} onEdit={() => onEdit(gv.raw)} onDelete={() => onDelete(gv.raw)} />
           </div>
         </div>
       ))}
@@ -185,7 +253,7 @@ function RowsView({ rows, onCopy, onEdit, onDelete }) {
   );
 }
 
-function CardsView({ rows, onCopy, onEdit, onDelete }) {
+function CardsView({ rows, onCopy, onQr, onEdit, onDelete }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,248px),1fr))", gap: 14 }}>
       {rows.map((gv) => (
@@ -214,6 +282,9 @@ function CardsView({ rows, onCopy, onEdit, onDelete }) {
                 {ICONS.copy}Copiar link
               </button>
             )}
+            {FEATURE_QR && gv.raw.token && (
+              <button title="Ver código QR" onClick={() => onQr(gv.raw)} style={{ ...iconBtn(false), width: 40, height: 40 }}>{ICONS.qr}</button>
+            )}
             <button title="Editar" onClick={() => onEdit(gv.raw)} style={{ ...iconBtn(false), width: 40, height: 40 }}>{ICONS.edit}</button>
             <button title="Borrar" onClick={() => onDelete(gv.raw)} style={{ ...iconBtn(true), width: 40, height: 40 }}>{ICONS.trash}</button>
           </div>
@@ -238,6 +309,7 @@ export default function GuestsSection({
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("lista"); // "lista" | "nombre" | "mesa"
+  const [qrGuest, setQrGuest] = useState(null); // provisional: ver lib/features.js
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -352,6 +424,15 @@ export default function GuestsSection({
                 </button>
               ))}
             </div>
+            {FEATURE_QR && guests.length > 0 && (
+              <button
+                onClick={() => window.open(qrSheetUrl(selectedEventId), "_blank", "noopener")}
+                title="Hojas de QR para imprimir y recortar"
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(120,115,95,0.2)", borderRadius: 11, color: "#5a564b", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+              >
+                {ICONS.qr}Hojas de QR
+              </button>
+            )}
             <button onClick={openAdd} style={goldButton}>{ICONS.plus}{showForm ? "Cerrar" : "Agregar"}</button>
           </div>
         )}
@@ -406,19 +487,23 @@ export default function GuestsSection({
                     <span style={{ flex: 1, height: 1, background: "rgba(120,115,95,0.18)", alignSelf: "center", minWidth: 40 }} />
                   </div>
                   {isPhone ? (
-                    <CardsView rows={gr.rows} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+                    <CardsView rows={gr.rows} onCopy={onCopyGuestLink} onQr={setQrGuest} onEdit={openEdit} onDelete={handleDelete} />
                   ) : (
-                    <RowsView rows={gr.rows} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+                    <RowsView rows={gr.rows} onCopy={onCopyGuestLink} onQr={setQrGuest} onEdit={openEdit} onDelete={handleDelete} />
                   )}
                 </div>
               ))}
             </div>
           ) : isPhone ? (
-            <CardsView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+            <CardsView rows={filtered} onCopy={onCopyGuestLink} onQr={setQrGuest} onEdit={openEdit} onDelete={handleDelete} />
           ) : (
-            <RowsView rows={filtered} onCopy={onCopyGuestLink} onEdit={openEdit} onDelete={handleDelete} />
+            <RowsView rows={filtered} onCopy={onCopyGuestLink} onQr={setQrGuest} onEdit={openEdit} onDelete={handleDelete} />
           )}
         </>
+      )}
+
+      {FEATURE_QR && qrGuest && (
+        <GuestQrModal guest={qrGuest} onClose={() => setQrGuest(null)} />
       )}
     </section>
   );
